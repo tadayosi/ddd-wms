@@ -1,13 +1,16 @@
-#summary One-sentence summary of this page.
+#summary 概要
 
-= Introduction =
+== このプロジェクトは何？ ==
+DDD読書会 in JavaEE勉強会の完了を受け、DDDの理解を深めるために立ち上げたサンプル作成プロジェクト。
 
-Add your content here.
+==進め方==
+  * [http://www.wikihouse.com/withoutEJB/index.php?plugin=attach&refer=%B5%C4%BB%F6%CF%BF%2F%C2%E856%B2%F3&openfile=DDD-WMS.ppt 要件のたたき台]を元に、顧客ロールの方にML経由で要件をつめつつ、モデルを作っていく。
+  * モデルの表現方法は、進めながら考える
+   * コード
+   * 文書
+   * ダイアグラム
 
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+==問題==
+  * ダイアグラムのスケッチが必要だと思うけど、どうやって共有しよう？
+   * Wikiには画像のアップロードもないっぽい
+   * 外部に画像あげてリンク貼るしかない？
