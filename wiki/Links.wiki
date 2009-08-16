@@ -1,6 +1,6 @@
 == 倉庫・物流関連 ==
-* [http://www.buturyu.net 物流道]
-* [http://www.weekly-net.co.jp/49wms.html 物流ウィークリー - WMS/在庫管理システム・倉庫管理システム　リンク集]
-* [http://www.toyota-lf.com/solution/engineer.html TOYOTA L&F]
-* [http://www.uni-kk.co.jp ユニバーサル工業]
-* [http://www.okamura.co.jp/product/butsyuryu/index.html 岡村製作所]
+ * [http://www.buturyu.net 物流道]
+ * [http://www.weekly-net.co.jp/49wms.html 物流ウィークリー - WMS/在庫管理システム・倉庫管理システム　リンク集]
+ * [http://www.toyota-lf.com/solution/engineer.html TOYOTA L&F]
+ * [http://www.uni-kk.co.jp ユニバーサル工業]
+ * [http://www.okamura.co.jp/product/butsyuryu/index.html 岡村製作所]
