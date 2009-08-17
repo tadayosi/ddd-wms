@@ -1,3 +1,5 @@
+#summary リンク集
+
 == 倉庫・物流関連 ==
  * [http://www.buturyu.net 物流道]
  * [http://www.weekly-net.co.jp/49wms.html 物流ウィークリー - WMS/在庫管理システム・倉庫管理システム　リンク集]
