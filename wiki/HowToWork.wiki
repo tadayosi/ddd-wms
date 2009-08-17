@@ -1,4 +1,4 @@
-DDD-WMSの進め方
+#summary DDD-WMSの進め方
 
 == 方針 ==
  * [UseCases ユースケース]ごとに担当者を決定
