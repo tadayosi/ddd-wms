@@ -1,4 +1,5 @@
-= ドメインモデル =
+#summary ドメインモデル
+
 == 図 ==
 編集URL http://www.gliffy.com/gliffy/#d=1788215&t=ddd-wms_Domain_Model
 
