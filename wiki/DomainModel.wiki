@@ -3,8 +3,11 @@
 == 図 ==
 編集URL http://www.gliffy.com/gliffy/#d=1788215&t=ddd-wms_Domain_Model
 
+=== 初期バージョン[0.0.1] ===
 [http://www.gliffy.com/pubdoc/1788215/L.jpg]
 
+=== ヒアリング後[0.0.2] ===
+http://farm4.static.flickr.com/3494/3833270763_7c1370369d_o.jpg
 
 == 一覧 ==
 || *オブジェクト* ||||
