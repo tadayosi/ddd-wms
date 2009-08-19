@@ -1,4 +1,4 @@
-package wms.domain.interfaces;
+package wms.interfaces;
 
 import java.util.Date;
 import java.util.List;
@@ -6,7 +6,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-import wms.domain.infrastructure.persistence.memory.StockOrderRepositoryOnMemory;
+import wms.infrastructure.persistence.memory.StockOrderRepositoryOnMemory;
+import wms.interfaces.AcceptOrderAction;
+import wms.interfaces.StockOrderCommand;
 
 import com.google.common.collect.Lists;
 
