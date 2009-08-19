@@ -1,4 +1,4 @@
-package wms.domain.interfaces;
+package wms.interfaces;
 
 public class ArrivalCommand {
 

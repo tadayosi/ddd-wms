@@ -1,4 +1,4 @@
-package wms.domain.infrastructure.persistence.memory;
+package wms.infrastructure.persistence.memory;
 
 import java.util.Set;
 

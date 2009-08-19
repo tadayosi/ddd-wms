@@ -1,4 +1,4 @@
-package wms.domain.interfaces;
+package wms.interfaces;
 
 import java.util.Date;
 import java.util.List;

@@ -1,4 +1,4 @@
-package wms.domain.interfaces;
+package wms.interfaces;
 
 /**
  * UIから送信されたデータが格納される想定
