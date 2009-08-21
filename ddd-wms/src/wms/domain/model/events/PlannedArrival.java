@@ -1,4 +1,4 @@
-package wms.domain.model.order;
+package wms.domain.model.events;
 
 import java.util.Collections;
 import java.util.Date;
@@ -6,26 +6,30 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-public class StockOrder {
-	private List<StockOrderDetail> details = Lists.newArrayList();
-	private OrderId id;
+/**
+ * 入荷予定
+ * @author kentaro
+ */
+public class PlannedArrival {
+	private List<PlannedArrivalDetail> details = Lists.newArrayList();
+	private String id;
 	// estimated arrival time
 	// Dateじゃまずい気もするが、とりあえず気にしない
 	private Date eat;
 	
-	public List<StockOrderDetail> getDetails() {
+	public List<PlannedArrivalDetail> getDetails() {
 		return Collections.unmodifiableList(details);
 	}
 	
-	public void addDetail(StockOrderDetail detail) {
+	public void addDetail(PlannedArrivalDetail detail) {
 		details.add(detail);
 	}
 
-	public OrderId getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(OrderId id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

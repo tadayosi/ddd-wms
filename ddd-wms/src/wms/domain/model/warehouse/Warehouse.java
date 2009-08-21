@@ -6,9 +6,9 @@ import java.util.Set;
 import wms.domain.model.shared.Entity;
 
 /**
+ * 倉庫
  * Aggregate Root?
  * @author kentaro
- *
  */
 public class Warehouse implements Entity<Warehouse> {
 	private String id;
