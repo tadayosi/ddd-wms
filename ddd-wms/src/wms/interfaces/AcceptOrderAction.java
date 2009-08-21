@@ -5,12 +5,11 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import wms.domain.model.cargo.CargoType;
-import wms.domain.model.cargo.CargoType.CargoSize;
-import wms.domain.model.order.OrderId;
-import wms.domain.model.order.StockOrder;
-import wms.domain.model.order.StockOrderDetail;
-import wms.domain.model.order.StockOrderRepository;
+import wms.domain.model.basics.Size;
+import wms.domain.model.events.PlannedArrival;
+import wms.domain.model.events.PlannedArrivalDetail;
+import wms.domain.model.events.PlannedArrivalRepository;
+import wms.domain.model.items.Item;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
@@ -26,18 +25,18 @@ public class AcceptOrderAction {
 	public List<StockOrderCommand> orders;
 	public Date eat;
 	@Resource
-	private StockOrderRepository repository;
+	private PlannedArrivalRepository repository;
 
-	public OrderId process() {
-		final StockOrder order = new StockOrder();
+	public String process() {
+		final PlannedArrival order = new PlannedArrival();
 		order.setEat(eat);
 		
-		Function<StockOrderCommand, StockOrderDetail> func = new Function<StockOrderCommand, StockOrderDetail>() {
-			public StockOrderDetail apply(StockOrderCommand command) {
-				CargoSize size = CargoSize.findValueFor(command.size);
+		Function<StockOrderCommand, PlannedArrivalDetail> func = new Function<StockOrderCommand, PlannedArrivalDetail>() {
+			public PlannedArrivalDetail apply(StockOrderCommand command) {
+				Size size = Size.findValueFor(command.size);
 				if (size == null) return null;
-				StockOrderDetail detail = new StockOrderDetail();
-				CargoType type = new CargoType(size);
+				PlannedArrivalDetail detail = new PlannedArrivalDetail();
+				Item type = new Item(size);
 				detail.setType(type);
 				detail.setAmmount(command.ammount);
 				
@@ -45,14 +44,14 @@ public class AcceptOrderAction {
 			}
 		};
 
-		for(StockOrderDetail detail : Iterables.transform(orders, func)) {
+		for(PlannedArrivalDetail detail : Iterables.transform(orders, func)) {
 			order.addDetail(detail);
 		}
 		repository.save(order);
 		return order.getId();
 	}
 
-	public void setRepository(StockOrderRepository repository) {
+	public void setRepository(PlannedArrivalRepository repository) {
 		this.repository = repository;
 	}
 

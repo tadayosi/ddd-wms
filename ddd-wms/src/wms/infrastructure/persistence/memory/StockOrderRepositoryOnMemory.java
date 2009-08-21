@@ -2,11 +2,10 @@ package wms.infrastructure.persistence.memory;
 
 import java.util.Set;
 
-import com.google.common.collect.Sets;
+import wms.domain.model.events.PlannedArrival;
+import wms.domain.model.events.PlannedArrivalRepository;
 
-import wms.domain.model.order.OrderId;
-import wms.domain.model.order.StockOrder;
-import wms.domain.model.order.StockOrderRepository;
+import com.google.common.collect.Sets;
 
 /**
  * Repositoryのメモリ保存実装。
@@ -14,16 +13,16 @@ import wms.domain.model.order.StockOrderRepository;
  * @author kentaro
  *
  */
-public class StockOrderRepositoryOnMemory implements StockOrderRepository {
+public class StockOrderRepositoryOnMemory implements PlannedArrivalRepository {
 
-	private Set<StockOrder> orders = Sets.newHashSet();
+	private Set<PlannedArrival> orders = Sets.newHashSet();
 
 	private int currentId = 0;
 	
-	public void save(StockOrder order) {
+	public void save(PlannedArrival order) {
 		// とりあえず、IDはここで割り当ててみる
 		// 超適当、同期化もしてない
-		order.setId(new OrderId(String.valueOf(currentId++)));
+		order.setId(String.valueOf(currentId++));
 		orders.add(order);
 	}
 
