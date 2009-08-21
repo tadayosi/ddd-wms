@@ -5,15 +5,14 @@ import java.util.List;
 import com.google.common.collect.Lists;
 
 /**
- * 検査
+ * 検品
  * @author kentaro
- *
  */
 public class Inspection {
 	// 必要か？ヒアリングの結果次第
 	private int id;
 	private List<InspectionDetail> details = Lists.newArrayList();
-	private Arrival prior;
+	private ActualArrival prior;
 	
 	public int getId() {
 		return id;
@@ -27,10 +26,10 @@ public class Inspection {
 	public void setDetails(List<InspectionDetail> details) {
 		this.details = details;
 	}
-	public Arrival getPrior() {
+	public ActualArrival getPrior() {
 		return prior;
 	}
-	public void setPrior(Arrival prior) {
+	public void setPrior(ActualArrival prior) {
 		this.prior = prior;
 	}
 }

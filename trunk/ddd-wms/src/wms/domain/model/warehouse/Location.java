@@ -1,11 +1,14 @@
 package wms.domain.model.warehouse;
 
-import wms.domain.model.Entry;
+import wms.domain.model.basics.Size;
+import wms.domain.model.events.Transfer;
 
 
-public interface Location {
+public abstract class Location {
 
-	void addEntry(Entry entry);
+	protected InitialInventory initialInventory;
 	
-	boolean available(int ammount);
+	public abstract void addEntry(Transfer entry);
+	
+	public abstract boolean available(Size size, int ammount);
 }

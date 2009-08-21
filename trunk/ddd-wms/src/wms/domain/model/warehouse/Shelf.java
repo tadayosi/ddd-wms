@@ -1,39 +1,27 @@
 package wms.domain.model.warehouse;
 
-import java.util.Map;
-
-import wms.domain.model.Entry;
-import wms.domain.model.cargo.CargoType.CargoSize;
+import wms.domain.model.basics.Size;
+import wms.domain.model.events.Transfer;
 import wms.domain.model.shared.Entity;
 
-import com.google.common.collect.Maps;
-
-public class Shelf implements Location, Entity<Shelf>{
+public class Shelf extends Location implements Entity<Shelf>{
 	private String id;
-	private Map<CargoSize, Space> spaces = Maps.newHashMap();
 	
 	public Shelf() {}
 
-	public void addSpace(CargoSize size, Space space) {
-		spaces.put(size, space);
-	}
-	
-	public boolean available(int ammount) {
-		// TODO きちんと
-		return true;
-	}
-	
-	public void addEntry(Entry entry) {
-		Space space = spaces.get(entry.getCargoType().getSize());
-		if (space.available(entry.getAmmount())) {
-			space.addEntry(entry);
-		}		
+	public void addEntry(Transfer entry) {
 	}
 	
 	public boolean sameIdentityAs(Shelf other) {
 		return equals(other);
 	}
 
+	@Override
+	public boolean available(Size size, int ammount) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

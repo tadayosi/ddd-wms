@@ -1,21 +1,20 @@
 package wms.domain.model.events;
 
-import wms.domain.model.cargo.Cargo;
+import wms.domain.model.items.Lot;
 
 /**
- * 検査結果
+ * 検品明細
  * @author kentaro
- *
  */
 public class InspectionDetail {
-	private Cargo target;
+	private Lot target;
 	// 実際は詳細情報が必要なはず
 	private boolean result;
 	
-	public Cargo getTarget() {
+	public Lot getTarget() {
 		return target;
 	}
-	public void setTarget(Cargo target) {
+	public void setTarget(Lot target) {
 		this.target = target;
 	}
 	public boolean isResult() {
