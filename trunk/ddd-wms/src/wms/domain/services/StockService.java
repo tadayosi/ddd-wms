@@ -1,7 +1,6 @@
 package wms.domain.services;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import wms.domain.model.events.Transfer;
@@ -32,12 +31,9 @@ public class StockService {
         WarehouseRepository repository = WarehouseRepository.getInstance();
         List<Warehouse> warehouses = repository.allWarehouses();
         for (Warehouse warehouse : warehouses) {
-            for (Iterator<Shelf> it = warehouse.shelves().iterator(); it
-                    .hasNext();) {
-                Shelf shelf = it.next();
-                for (Iterator<Transfer> it2 = shelf.getEntries().iterator(); it2
-                        .hasNext();) {
-                    items.add(it2.next().getItem());
+            for (Shelf shelf : warehouse.shelves()) {
+                for (Transfer transfer : shelf.getEntries()) {
+                    items.add(transfer.getItem());
                 }
             }
         }
