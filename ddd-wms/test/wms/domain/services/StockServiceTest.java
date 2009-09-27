@@ -14,7 +14,6 @@ import wms.domain.model.items.Item;
 import wms.domain.model.warehouse.Shelf;
 import wms.domain.model.warehouse.Warehouse;
 import wms.domain.repositories.WarehouseRepository;
-import wms.domain.services.StockService;
 
 /**
  * 在庫サービスの単体テストクラス.

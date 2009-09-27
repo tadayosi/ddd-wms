@@ -2,10 +2,7 @@ package wms.domain.model.warehouse;
 
 import static wms.infrastructure.utils.SupportUtils.required;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import wms.domain.model.basics.Size;
@@ -39,8 +36,8 @@ public class Shelf extends Location implements Entity<Shelf> {
     public Set<Transfer> getEntries() {
         // defensive copy
         Set<Transfer> copy = new HashSet<Transfer>();
-        for (Iterator<Transfer> it = entries.iterator(); it.hasNext();) {
-            copy.add(it.next());
+        for (Transfer transfer : entries) {
+            copy.add(transfer);
         }
         return copy;
     }

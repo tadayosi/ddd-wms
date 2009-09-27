@@ -7,8 +7,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import wms.infrastructure.persistence.memory.StockOrderRepositoryOnMemory;
-import wms.interfaces.AcceptOrderAction;
-import wms.interfaces.StockOrderCommand;
 
 import com.google.common.collect.Lists;
 
