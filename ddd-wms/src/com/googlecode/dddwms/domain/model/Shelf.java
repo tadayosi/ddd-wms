@@ -6,14 +6,14 @@ import java.util.List;
 @Deprecated
 public class Shelf {
 
-	private List<Item> items = new ArrayList<Item>();
-	
-	public boolean isEmpty() {
-		return items.isEmpty();
-	}
+    private List<Item> items = new ArrayList<Item>();
 
-	public void stock(Item item) {
-		items.add(item);
-	}
+    public boolean isEmpty() {
+        return items.isEmpty();
+    }
+
+    public void stock(Item item) {
+        items.add(item);
+    }
 
 }
