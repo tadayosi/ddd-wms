@@ -28,6 +28,16 @@ public class WarehouseSpec extends Specification<Warehouse>{
 		public void isEmptyWhenCreated() {
 			specify(warehouse, must.be.empty());
 		}
+		
+		/**
+		 * 物品を格納した後は空でなくなる
+		 */
+		public void isNoLongerEmptyAfterStore() {
+			Item bottledWater = new Item();
+			bottledWater.setName("エビアン");
+			warehouse.store(bottledWater);
+			specify(warehouse, must.not().be.empty());
+		}
 	}
 	
 }
