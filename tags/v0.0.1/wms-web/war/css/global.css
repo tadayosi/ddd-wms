@@ -1,0 +1,22 @@
+@CHARSET "utf-8";
+
+#container {
+ width:700px;
+ margin-left:auto;
+ margin-right:auto;
+}
+#labels {
+ width:100px;
+ float:left;
+}
+
+#inputs {
+ width:600px;
+ float:left;
+}
+
+#commands {
+ width:100%;
+ float:clear;
+}
+
