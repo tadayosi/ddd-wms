@@ -8,5 +8,7 @@ DDD-WMS開発を複数人が効率よく進められるよう、一定の開発�
 
 表組みなどExcelに適した内容のドキュメントを作成するには、 *[http://docs.google.com/ Google Docs]* を利用し、Wikiにリンクを貼ります。
 
+図を作りたい場合は、VisioやOmni Graffleなどのソフトを利用し画像を埋め込みます。[http://www.gliffy.com/ gliffy]などのオンラインツールを利用しても構いません。
+
 = 開発環境 =
 *Eclipse* を推奨します。
