@@ -75,7 +75,7 @@
 
 
 ----
-==RecieptOfGoods==
+=RecieptOfGoods=
 ==入荷する==
 
 ===概略===
