@@ -1,5 +1,3 @@
-#summary One-sentence summary of this page.
-
 = Introduction =
 入荷受付のモデル
 
@@ -15,4 +13,4 @@ http://www.gliffy.com/pubdoc/2035597/L.png
  ５．検品後の入庫場所を仮押え、仮在庫数に計上する。
 に相当するのが「入荷受付」->「ロット管理」
 
-*物品の取り扱い履歴に関しては入出庫履歴としています。
+物品の取り扱い履歴に関しては入出庫履歴としています。
