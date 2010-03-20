@@ -1,8 +1,7 @@
-= Introduction =
-入荷受付のモデル
+#summary 入荷受付のモデル
 
 
-= Details =
+= 説明 =
 http://www.gliffy.com/pubdoc/2035597/L.png
 
 = 説明 =
