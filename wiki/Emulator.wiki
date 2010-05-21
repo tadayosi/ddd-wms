@@ -1,0 +1,55 @@
+#summary エミュレータに関する情報
+
+= エミュレータ =
+== 通信フォーマット ==
+=== 入荷依頼 ===
+ * URL
+ ${baseUrl}/arrivalRequest/
+
+ * POST
+{{{
+{
+  date: 2010-05-10,
+  items: [
+    { id: 1, amount: 5 }
+    { id: 2, amount: 1 }
+  ]
+}
+}}}
+
+ * Responce
+{{{
+{
+  id: 111
+}
+}}}
+
+=== 入荷 ===
+ * URL
+ ${baseUrl}/arrival/
+
+ * POST
+{{{
+{
+  id: 111
+}
+}}}
+
+ * Responce
+
+=== 出荷指示 ===
+ * URL
+ ${baseUrl}/arrivalRequest/
+
+ * POST
+{{{
+{
+  date: 2010-05-10,
+  items: [
+    { id: 1, amount: 5 }
+    { id: 2, amount: 1 }
+  ]
+}
+}}}
+
+ * Responce
