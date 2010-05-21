@@ -38,7 +38,7 @@
 
 === 出荷指示 ===
  * URL
- ${baseUrl}/arrivalRequest/
+ ${baseUrl}/shippingRequest/
 
  * POST
 {{{
