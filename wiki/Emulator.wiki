@@ -10,7 +10,7 @@
 {
   date: 2010-05-10,
   items: [
-    { id: 1, amount: 5 }
+    { id: 1, amount: 5 },
     { id: 2, amount: 1 }
   ]
 }
@@ -45,7 +45,7 @@
 {
   date: 2010-05-10,
   items: [
-    { id: 1, amount: 5 }
+    { id: 1, amount: 5 },
     { id: 2, amount: 1 }
   ]
 }
