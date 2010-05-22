@@ -1,8 +1,11 @@
 #summary エミュレータに関する情報
 == 起動方法 ==
  # https://ddd-wms.googlecode.com/svn/trunk/ddd-wms-emulator をチェックアウト
- # mvn jetty:run
+ # mvn jetty:run を実行
  # http://localhost:8080/emulator/ に Google Chrome でアクセス
+
+== 設定 ==
+ * 
 
 == 通信フォーマット ==
 === 入荷依頼 ===
