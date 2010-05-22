@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"/>
+	<title>emulator</title>
+	<link rel="stylesheet" href="/emulator/css/style.css"/>
+</head>
+<body>
+<h1>倉庫エミュレータ</h1>
+<section id="arrivalRequest">
+	<h1>入荷依頼</h1>
+</section>
+<script src="http://www.google.com/jsapi"></script>
+<script>google.load("jquery", "1.3")</script>
+<script src="http://jquery-json.googlecode.com/files/jquery.json-2.2.min.js"></script>
+<script src="http://jquery-websocket.googlecode.com/files/jquery.websocket-0.0.1.js"></script>
+<script>
+var ws = $.websocket("ws://localhost:8080/emulator/ws", {
+	events: {
+		arrivalRequest: function(e) {
+			$('<div id="' + e.data.id + '">id:' + e.data.id + ' time:' + toDateString(e.data.time) + '</div>')
+				.appendTo('#arrivalRequest')
+		},
+		arrival: function(e) {
+			$('#' + e.data.id).addClass('arrival');
+			$('#' + e.data.id).fadeOut();
+			$('#' + e.data.id).slideUp(function(){
+				$(this).remove();
+			})
+		}
+	}
+});
+function toDateString(time) {
+	var date = new Date();
+	date.setTime(time);
+	return date.getFullYear() + '/' + date.getMonth() + '/' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds();
+}
+</script>
+</body>
+</html>
