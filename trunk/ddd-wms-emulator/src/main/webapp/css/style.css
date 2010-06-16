@@ -1,3 +1,10 @@
+#arrivalRequest,#shippingRequest {
+	float: left;
+	width: 50%;
+}
 .arrival {
+	background-color: #ff0;
+}
+.shipping {
 	background-color: #ff0;
 }
