@@ -2,10 +2,16 @@
 == 起動方法 ==
  # https://ddd-wms.googlecode.com/svn/trunk/ddd-wms-emulator をチェックアウト
  # mvn jetty:run を実行
- # http://localhost:8080/emulator/ に Google Chrome でアクセス
+
+== 画面（Google Chrome専用）==
+ # http://localhost:8080/emulator/ にアクセス
 
 == 設定 ==
- * 
+ * src/main/webapp/WEB-INF/web.xml
+
+  targetURL:
+   エミュレート先ddd-wmsのURL
+
 
 == 通信フォーマット ==
 === 入荷依頼 ===
@@ -15,10 +21,10 @@
  * POST
 {{{
 {
-  date: 2010-05-10,
-  items: [
-    { id: 1, amount: 5 },
-    { id: 2, amount: 1 }
+  "time": 1276665830644,
+  "items": [
+    { "id": 1, "amount": 5 },
+    { "id": 2, "amount": 1 }
   ]
 }
 }}}
@@ -26,7 +32,7 @@
  * Responce
 {{{
 {
-  id: 111
+  "id": 111
 }
 }}}
 
@@ -37,7 +43,7 @@
  * POST
 {{{
 {
-  id: 111
+  "id": 111
 }
 }}}
 
@@ -50,12 +56,17 @@
  * POST
 {{{
 {
-  date: 2010-05-10,
-  items: [
-    { id: 1, amount: 5 },
-    { id: 2, amount: 1 }
+  "time": 1276665830644,
+  "items": [
+    { "id": 2, "amount": 2 },
+    { "id": 4, "amount": 3 }
   ]
 }
 }}}
 
  * Responce
+{{{
+{
+  "id": 111
+}
+}}}
