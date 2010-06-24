@@ -82,11 +82,26 @@
 			<version>0.9.20</version>
 			<scope>runtime</scope>
 		</dependency>
+		
+		<dependency>
+            <groupId>net.arnx.jsonic</groupId>
+            <artifactId>jsonic</artifactId>
+            <version>1.2.0</version>
+		</dependency>
+		
+
 	</dependencies>
 	<repositories>
 		<repository>
 			<id>JBoss Maven repository</id>
 			<url>http://repository.jboss.org/maven2/</url>
 		</repository>
+		<!-- 
+		<repository>
+            <id>maven.seasar.org</id>
+            <name>The Seasar Foundation Maven2 Repository</name>
+            <url>http://maven.seasar.org/maven2</url>
+		</repository>
+		 -->
 	</repositories>
 </project>
