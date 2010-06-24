@@ -70,3 +70,14 @@
   "id": 111
 }
 }}}
+
+----
+== アクションクラス ==
+  * ドメインレイヤへのエントリとしてアクションクラスを追加しました。
+  * WmsActionクラスの各メソッド内にサービスクラスの呼び出しロジックを実装する想定です。
+  * JSON ⇔ Beanの変換にはJSONICを使っています。
+  * JSONICのSeasarリポジトリがうまく動かなかったので、コメントアウトしています。
+  ** 以下のコードでローカルにインストールして下さい。
+{{{
+mvn install:install-file -DgroupId=net.arnx.jsonic -DartifactId=jsonic -Dversion=1.2.0 -Dpackaging=jar -Dfile=/path/to/jarfile.jar
+}}}
