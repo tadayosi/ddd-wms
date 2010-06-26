@@ -5,6 +5,7 @@ import net.arnx.jsonic.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.googlecode.dddwms.domain.service.WmsService;
 import com.googlecode.dddwms.messagebean.ArrivalMessageBean;
 import com.googlecode.dddwms.messagebean.ArrivalRequestMessageBean;
 import com.googlecode.dddwms.messagebean.ShippingRequestMessageBean;
@@ -13,32 +14,37 @@ public class WmsAction {
 
 	private Logger log = LoggerFactory.getLogger(WmsAction.class);
 
-	public void arrivalRequest(String jsonMessage) {
+	/** arrivalRequest */
+	public long arrivalRequest(String jsonMessage) {
 		log.info("arrivalRequest:{}", jsonMessage);
 
-		ArrivalRequestMessageBean arrivalRequestBean = JSON.decode(jsonMessage,
-				ArrivalRequestMessageBean.class);
-		
-		// TODO サービスを呼び出し
+		ArrivalRequestMessageBean message = JSON.decode(jsonMessage, ArrivalRequestMessageBean.class);
 
+		WmsService service = new WmsService();
+		long requestId = service.handleArrivalRequest(message);
+
+		return requestId;
 	}
 
+	/** arrival */
 	public void arrival(String jsonMessage) {
 		log.info("arrival:{}", jsonMessage);
 
-		ArrivalMessageBean arrivalBean = JSON.decode(jsonMessage,
-				ArrivalMessageBean.class);
-		
-		// TODO サービスを呼び出し
+		ArrivalMessageBean message = JSON.decode(jsonMessage, ArrivalMessageBean.class);
+
+		WmsService service = new WmsService();
+		service.handleArrival(message);
+
 	}
 
+	/** shippingRequest */
 	public void shippingRequest(String jsonMessage) {
 		log.info("shippingRequest:{}", jsonMessage);
 
-		ShippingRequestMessageBean shippingBean = JSON.decode(jsonMessage,
-				ShippingRequestMessageBean.class);
-		
-		// TODO サービスを呼び出し
+		ShippingRequestMessageBean message = JSON.decode(jsonMessage, ShippingRequestMessageBean.class);
+
+		WmsService service = new WmsService();
+		service.handleShippingRequest(message);
 	}
 
 }
