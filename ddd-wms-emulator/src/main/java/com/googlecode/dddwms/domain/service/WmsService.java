@@ -1,5 +1,7 @@
 package com.googlecode.dddwms.domain.service;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Map.Entry;
 
 import org.slf4j.Logger;
@@ -7,12 +9,16 @@ import org.slf4j.LoggerFactory;
 
 import com.googlecode.dddwms.domain.model.ArrivalRequest;
 import com.googlecode.dddwms.domain.model.ArrivalRequestStatus;
+import com.googlecode.dddwms.domain.model.ShippingRequest;
+import com.googlecode.dddwms.domain.model.ShippingRequestStatus;
 import com.googlecode.dddwms.domain.model.Warehouse;
 import com.googlecode.dddwms.domain.repository.ArrivalRequestRepository;
+import com.googlecode.dddwms.domain.repository.ShippingRequestRepository;
 import com.googlecode.dddwms.domain.repository.WarehouseRepository;
 import com.googlecode.dddwms.messagebean.ArrivalItemsMessageBean;
 import com.googlecode.dddwms.messagebean.ArrivalMessageBean;
 import com.googlecode.dddwms.messagebean.ArrivalRequestMessageBean;
+import com.googlecode.dddwms.messagebean.ShippingItemsMessageBean;
 import com.googlecode.dddwms.messagebean.ShippingRequestMessageBean;
 
 public class WmsService {
@@ -21,6 +27,8 @@ public class WmsService {
 
 	private WarehouseRepository warehouseRepository = WarehouseRepository.getInstance();
 
+	private ShippingRequestRepository  shippingRequestRepository = ShippingRequestRepository.getInstance();
+	
 	private Logger log = LoggerFactory.getLogger(WmsService.class);
 
 	public long handleArrivalRequest(ArrivalRequestMessageBean message) {
@@ -65,13 +73,38 @@ public class WmsService {
 		request.arrived();
 	}
 
-	public void handleShippingRequest(ShippingRequestMessageBean message) {
+	public long handleShippingRequest(ShippingRequestMessageBean message) {
 
-		Warehouse warehouse = warehouseRepository.get();
+		long shippingId = shippingRequestRepository.nextId();
+		ShippingRequest request = new ShippingRequest(shippingId, message.time);	
 
-		for (ArrivalItemsMessageBean item : message.items) {
-			warehouse.ship(item.id, item.amount);
+		for (ShippingItemsMessageBean item : message.items) {
+			request.putAmount(item.id, item.amount);
 		}
+		
+		shippingRequestRepository.add(request);
+		
+		// TODO テストケース未実装
+		if (request.status() == ShippingRequestStatus.SHIPPED) {
+			log.error("already shipped:{}", shippingId);
+			return shippingId;
+		}
+		
+		//指定時刻に達しているか
+		Date now = new Date();
+		if ( request.time().after(now)  ) {
+			log.info("ShippingId:{} still have shippingRequestTime:{}  ",shippingId,request.time().toString()+ " <=> now:" + now.toString() );
+		}else {
+			Warehouse warehouse = warehouseRepository.get();
+			for (Entry<Long, Integer> entry : request.amounts().entrySet()) {
+				long itemId = entry.getKey().longValue();
+				int amount = entry.getValue().intValue();
+				warehouse.ship(itemId, amount);
+			}
+			request.shipped();
+		}
+
+		return shippingId;
 	}
 
 }
