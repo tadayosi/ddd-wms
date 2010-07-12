@@ -7,6 +7,6 @@ public class ShippingRequestMessageBean {
 
 	public Date time = null;
 
-	public List<ArrivalItemsMessageBean> items = null;
+	public List<ShippingItemsMessageBean> items = null;
 
 }

@@ -38,13 +38,15 @@ public class WmsAction {
 	}
 
 	/** shippingRequest */
-	public void shippingRequest(String jsonMessage) {
+	public long shippingRequest(String jsonMessage) {
 		log.info("shippingRequest:{}", jsonMessage);
 
 		ShippingRequestMessageBean message = JSON.decode(jsonMessage, ShippingRequestMessageBean.class);
 
 		WmsService service = new WmsService();
-		service.handleShippingRequest(message);
+		long requestId = service.handleShippingRequest(message);
+		
+		return requestId;
 	}
 
 }

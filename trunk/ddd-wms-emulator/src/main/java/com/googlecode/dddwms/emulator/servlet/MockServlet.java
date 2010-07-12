@@ -15,7 +15,7 @@ import com.googlecode.dddwms.action.WmsAction;
 public class MockServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
-	private AtomicLong shippingId = new AtomicLong();
+	//private AtomicLong shippingId = new AtomicLong();
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -51,10 +51,10 @@ public class MockServlet extends HttpServlet {
 		
 		} else if (pathInfo.matches("/shippingRequest")) {
 			
-			action.shippingRequest(message);
+			long shippingId = action.shippingRequest(message);
 			
 			resp.setContentType("text/plain");
-			resp.getWriter().printf("{\"id\":%d}", shippingId.incrementAndGet());
+			resp.getWriter().printf("{\"id\":%d}", shippingId);
 		
 		} else {
 			resp.setStatus(404);
