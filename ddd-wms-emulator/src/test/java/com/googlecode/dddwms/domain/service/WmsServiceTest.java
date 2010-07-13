@@ -12,12 +12,16 @@ import org.junit.Test;
 
 import com.googlecode.dddwms.domain.model.ArrivalRequest;
 import com.googlecode.dddwms.domain.model.ArrivalRequestStatus;
+import com.googlecode.dddwms.domain.model.ShippingRequest;
+import com.googlecode.dddwms.domain.model.ShippingRequestStatus;
 import com.googlecode.dddwms.domain.model.Warehouse;
 import com.googlecode.dddwms.domain.repository.ArrivalRequestRepository;
+import com.googlecode.dddwms.domain.repository.ShippingRequestRepository;
 import com.googlecode.dddwms.domain.repository.WarehouseRepository;
 import com.googlecode.dddwms.messagebean.ArrivalItemsMessageBean;
 import com.googlecode.dddwms.messagebean.ArrivalMessageBean;
 import com.googlecode.dddwms.messagebean.ArrivalRequestMessageBean;
+import com.googlecode.dddwms.messagebean.ShippingItemsMessageBean;
 import com.googlecode.dddwms.messagebean.ShippingRequestMessageBean;
 
 public class WmsServiceTest {
@@ -108,38 +112,104 @@ public class WmsServiceTest {
 	public void shouldHandleShippingRequestMessage() throws Exception {
 
 		Date now = new Date();
-
 		// setup
 		WarehouseRepository warehouseRepository = WarehouseRepository.getInstance();
 		{
 			Warehouse warehouse = warehouseRepository.get();
-			warehouse.arrive(1, 5);
+			warehouse.arrive(2, 5);
 			warehouseRepository.set(warehouse);
 		}
-
-		// message bean
-		ShippingRequestMessageBean message = new ShippingRequestMessageBean();
-		message.time = now;
-
-		// item1
-		ArrivalItemsMessageBean bean1 = new ArrivalItemsMessageBean();
-		bean1.id = 1;
-		bean1.amount = 4;
-
-		// item list
-		List<ArrivalItemsMessageBean> items = new ArrayList<ArrivalItemsMessageBean>();
-		items.add(bean1);
-
-		// execute
+	
 		WmsService service = new WmsService();
-		service.handleShippingRequest(message);
+		// message
+
+		ShippingRequestMessageBean messageBean = createShippingRequestMessage(now,2L, 5 );
+		// execute
+		long id = service.handleShippingRequest(messageBean);
 
 		// verify
 		Warehouse warehouse = warehouseRepository.get();
-		// ５個入荷／４個出荷→残りは１個
-		assertEquals(1, warehouse.count(1));
+		// ５個入荷／５個出荷→残りは０個
+		assertEquals(0, warehouse.count(2));
+		assertEquals(1, id);
 	}
 
+	/**
+	 * 出荷：正常（出荷指示・出荷）
+	 * Given: 出荷指示が行われていること
+	 * When:  出荷指示を受け付けた場合(現在時刻が、出荷指示の時刻よりも後）
+	 * Then:  出荷指示を受け付ける。出荷する(出荷済み）
+	 * TODO 　   
+	 */
+	@Test
+	public void shouldHandleShippingRequestAtTheTime() throws Exception {
+		// setup
+		WarehouseRepository warehouseRepository = WarehouseRepository.getInstance();
+		{
+			Warehouse warehouse = warehouseRepository.get();
+			warehouse.arrive(2, 5);
+			warehouseRepository.set(warehouse);
+		}
+		Date now = new Date();
+		//10秒前
+	    Date inputDate = new Date(now.getTime() - 10 * 1000);
+	    
+		// message
+		ShippingRequestMessageBean messageBean = createShippingRequestMessage(inputDate,2L, 3); 
+		// execute
+		long id = shippingRequest(messageBean);
+			
+		// verify
+		ShippingRequest request = ShippingRequestRepository.getInstance().forId(id);
+		assertEquals(id, request.id());
+		assertEquals(inputDate, request.time());
+		assertEquals(3, request.amountOf(2L));
+		assertEquals(ShippingRequestStatus.SHIPPED, request.status());
+		
+		// verify
+		Warehouse warehouse = warehouseRepository.get();
+		// ５個入荷／３個出荷→残りは2個
+		assertEquals(2, warehouse.count(2));
+	}
+	
+	/**
+	 * 出荷：正常 （出荷指示のみ）
+	 * Given: 出荷指示が行われていること
+	 * When:  出荷指示を受け付けた場合(現在時刻が、出荷指示の時刻よりも前）
+	 * Then:  出荷指示を受け付ける。出荷しない(出荷待ち）
+	 * TODO 　   
+	 */
+	@Test
+	public void shouldHandleShippingRequestStillHaveTime() throws Exception {
+		// setup
+		WarehouseRepository warehouseRepository = WarehouseRepository.getInstance();
+		{
+			Warehouse warehouse = warehouseRepository.get();
+			warehouse.arrive(3, 5);
+			warehouseRepository.set(warehouse);
+		}
+		Date now = new Date();
+		//10秒後
+	    Date inputDate = new Date(now.getTime() + 10 * 1000);
+	    
+		// message
+		ShippingRequestMessageBean messageBean = createShippingRequestMessage(inputDate,3L,3); 
+		// execute
+		long id = shippingRequest(messageBean);
+			
+		// verify
+		ShippingRequest request = ShippingRequestRepository.getInstance().forId(id);
+		assertEquals(id, request.id());
+		assertEquals(inputDate, request.time());
+		assertEquals(3, request.amountOf(3L));
+		assertEquals(ShippingRequestStatus.WAIT_FOR_SHIPPING, request.status());
+		
+		// verify
+		Warehouse warehouse = warehouseRepository.get();
+		// ５個入荷／３個出荷→出荷待ちであるため、残りは5個のまま。
+		assertEquals(5, warehouse.count(3));
+	}
+	
 	/**
 	 * 出荷：物品数不足
 	 * Given: 該当する物品の個数が足りない
@@ -204,6 +274,37 @@ public class WmsServiceTest {
 	private static void arrival(ArrivalMessageBean message) {
 		WmsService service = new WmsService();
 		service.handleArrival(message);
+	}
+
+	/**
+	 * 物品数：１（出荷指示用）
+	 * 
+	 * 物品：
+	 * 物品ID：1
+	 * 個数：3
+	 * 
+	 */
+	private static ShippingRequestMessageBean createShippingRequestMessage(Date time,long id,int amount ) {
+
+		// message bean
+		ShippingRequestMessageBean messageBean = new ShippingRequestMessageBean();
+		messageBean.time = time;
+
+		// items
+		ShippingItemsMessageBean itemBean1 = new ShippingItemsMessageBean();
+		itemBean1.id = id;
+		itemBean1.amount = amount;
+
+		List<ShippingItemsMessageBean> items = new ArrayList<ShippingItemsMessageBean>();
+		items.add(itemBean1);
+		messageBean.items = items;
+		return messageBean;
+	}
+
+	private static long shippingRequest(ShippingRequestMessageBean messageBean) {
+		WmsService service = new WmsService();
+		long id = service.handleShippingRequest(messageBean);
+		return id;
 	}
 
 }
