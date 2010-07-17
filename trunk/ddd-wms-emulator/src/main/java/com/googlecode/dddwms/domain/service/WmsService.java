@@ -84,12 +84,6 @@ public class WmsService {
 		
 		shippingRequestRepository.add(request);
 		
-		// TODO テストケース未実装
-		if (request.status() == ShippingRequestStatus.SHIPPED) {
-			log.error("already shipped:{}", shippingId);
-			return shippingId;
-		}
-		
 		//指定時刻に達しているか
 		Date now = new Date();
 		if ( request.time().after(now)  ) {
@@ -102,6 +96,7 @@ public class WmsService {
 				warehouse.ship(itemId, amount);
 			}
 			request.shipped();
+			shippingRequestRepository.add(request);
 		}
 
 		return shippingId;

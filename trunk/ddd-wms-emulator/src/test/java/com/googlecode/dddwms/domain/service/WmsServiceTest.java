@@ -102,39 +102,6 @@ public class WmsServiceTest {
 	}
 
 	/**
-	 * 出荷：正常
-	 * Given: 入荷が既に行われていること
-	 * When:  出荷を受け付けた場合
-	 * Then:  倉庫の該当する物品が減産される
-	 * TODO 多分状況確認のため、出荷エンティティは必要になる
-	 */
-	@Test
-	public void shouldHandleShippingRequestMessage() throws Exception {
-
-		Date now = new Date();
-		// setup
-		WarehouseRepository warehouseRepository = WarehouseRepository.getInstance();
-		{
-			Warehouse warehouse = warehouseRepository.get();
-			warehouse.arrive(2, 5);
-			warehouseRepository.set(warehouse);
-		}
-	
-		WmsService service = new WmsService();
-		// message
-
-		ShippingRequestMessageBean messageBean = createShippingRequestMessage(now,2L, 5 );
-		// execute
-		long id = service.handleShippingRequest(messageBean);
-
-		// verify
-		Warehouse warehouse = warehouseRepository.get();
-		// ５個入荷／５個出荷→残りは０個
-		assertEquals(0, warehouse.count(2));
-		assertEquals(1, id);
-	}
-
-	/**
 	 * 出荷：正常（出荷指示・出荷）
 	 * Given: 出荷指示が行われていること
 	 * When:  出荷指示を受け付けた場合(現在時刻が、出荷指示の時刻よりも後）
