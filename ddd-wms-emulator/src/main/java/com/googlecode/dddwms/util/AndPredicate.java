@@ -1,6 +1,6 @@
 package com.googlecode.dddwms.util;
 
-public class AndPredicate<T> implements Predicate<T> {
+public class AndPredicate<T> extends AbstractPredicate<T> {
 
     private Predicate<T> left;
     private Predicate<T> right;
@@ -13,11 +13,6 @@ public class AndPredicate<T> implements Predicate<T> {
     @Override
     public boolean apply(T element) {
         return left.apply(element) && right.apply(element);
-    }
-
-    @Override
-    public Predicate<T> and(Predicate<T> left) {
-        return new AndPredicate<T>(left, this);
     }
 
 }
