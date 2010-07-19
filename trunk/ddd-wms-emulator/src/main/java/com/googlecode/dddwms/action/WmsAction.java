@@ -1,5 +1,8 @@
 package com.googlecode.dddwms.action;
 
+import java.util.Collections;
+import java.util.List;
+
 import net.arnx.jsonic.JSON;
 
 import org.slf4j.Logger;
@@ -45,8 +48,14 @@ public class WmsAction {
 
 		WmsService service = new WmsService();
 		long requestId = service.handleShippingRequest(message);
-		
+
 		return requestId;
 	}
 
+	/** ship */
+	public List<Long> ship() {
+		log.info("ship");
+		// TODO サービス呼び出し
+		return Collections.emptyList();
+	}
 }
