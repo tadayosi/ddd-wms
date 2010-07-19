@@ -62,7 +62,7 @@ public class MockServletTest {
 		servlet.doPost(req, resp);
 
 		/* VERIFY */
-		assertEquals("{\"items\":[{\"id\":111},{\"id\":222]}", writer.toString());
+		assertEquals("{\"items\":[{\"id\":111},{\"id\":222}]}", writer.toString());
 	}
 
 	private static MockServlet mockServlet(WmsAction mockAction) throws NoSuchFieldException, IllegalAccessException {

@@ -81,7 +81,7 @@ public class MockServlet extends HttpServlet {
 		}
 		String messageContent = "";
 		if (shippedIds != null && shippedIds.size() > 0) {
-			messageContent = sb.substring(0, sb.lastIndexOf(",") - 1);
+			messageContent = sb.substring(0, sb.lastIndexOf(","));
 		}
 
 		resp.setContentType("text/plain");
