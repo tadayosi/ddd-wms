@@ -49,5 +49,12 @@ public class ShippingRequest {
 		_status = ShippingRequestStatus.SHIPPED;
 	}
 
+    public void shipFrom(Warehouse warehouse) {
+        for (Long key : amounts.keySet()) {
+            warehouse.ship(key, amounts.get(key));
+        }
+        shipped();
+    }
+
 
 }
