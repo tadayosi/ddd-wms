@@ -55,7 +55,6 @@ public class WmsAction {
 	/** ship */
 	public List<Long> ship() {
 		log.info("ship");
-		// TODO サービス呼び出し
-		return Collections.emptyList();
+		return new WmsService().handleShip();
 	}
 }

@@ -1,13 +1,16 @@
 package com.googlecode.dddwms.domain.repository;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.googlecode.dddwms.domain.model.ShippingRequest;
+import com.googlecode.dddwms.util.Predicate;
 
 public class ShippingRequestRepository {
 	
@@ -43,6 +46,16 @@ public class ShippingRequestRepository {
 
 	public boolean exists(long id) {
 		return requests.containsKey(Long.valueOf(id));
+	}
+	
+	public Set<ShippingRequest> filter(Predicate<ShippingRequest> criteria) {
+	    Set<ShippingRequest> resultSet = new HashSet<ShippingRequest>();
+	    for (ShippingRequest request : requests.values()) {
+            if (criteria.apply(request)) {
+                resultSet.add(request);
+            }
+        }
+	    return resultSet;
 	}
 
 }

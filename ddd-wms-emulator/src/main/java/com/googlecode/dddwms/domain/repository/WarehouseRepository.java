@@ -26,4 +26,8 @@ public class WarehouseRepository {
 		_warehouse = warehouse;
 	}
 
+    public void init() {
+        _warehouse = new Warehouse();
+    }
+
 }

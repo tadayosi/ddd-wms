@@ -1,11 +1,17 @@
 package com.googlecode.dddwms.domain.service;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static com.googlecode.dddwms.lang.ShippingRequestMessageBuilder.id;
+import static com.googlecode.dddwms.lang.ShippingRequestMessageBuilder.amount;
+import static com.googlecode.dddwms.lang.ShippingRequestMessageBuilder.item;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -18,6 +24,7 @@ import com.googlecode.dddwms.domain.model.Warehouse;
 import com.googlecode.dddwms.domain.repository.ArrivalRequestRepository;
 import com.googlecode.dddwms.domain.repository.ShippingRequestRepository;
 import com.googlecode.dddwms.domain.repository.WarehouseRepository;
+import com.googlecode.dddwms.lang.ShippingRequestMessageBuilder;
 import com.googlecode.dddwms.messagebean.ArrivalItemsMessageBean;
 import com.googlecode.dddwms.messagebean.ArrivalMessageBean;
 import com.googlecode.dddwms.messagebean.ArrivalRequestMessageBean;
@@ -29,6 +36,8 @@ public class WmsServiceTest {
 	@Before
 	public void doBeforeEachTest() {
 		ArrivalRequestRepository.getInstance().init();
+		ShippingRequestRepository.getInstance().init();
+		WarehouseRepository.getInstance().init();
 	}
 
 	/**
@@ -96,7 +105,7 @@ public class WmsServiceTest {
 	 * When:  入荷を受け付けた場合
 	 * Then:  倉庫の物品が加算される
 	 */
-	@Test
+//	@Test
 	public void shouldHandleArrivalMessageWhenItemAdded() throws Exception {
 		fail("未実装");
 	}
@@ -184,7 +193,7 @@ public class WmsServiceTest {
 	 * Then:  （出荷失敗のメッセージが出力される）
 	 * TODO ふるまいを確認する
 	 */
-	@Test
+//	@Test
 	public void shouldHandleShippingRequestMessageWhenItemIsOutOfStock() throws Exception {
 		fail("未実装");
 	}
@@ -196,11 +205,128 @@ public class WmsServiceTest {
 	 * Then:  （出荷失敗のメッセージが出力される）
 	 * TODO ふるまいを確認する
 	 */
-	@Test
+//	@Test
 	public void shouldHandleShippingRequestMessageWhenItemNotFound() throws Exception {
 		fail("未実装");
 	}
 
+    /**
+     * 出荷: 正常（出荷対象の依頼のみが存在）
+     * 
+     * Given: 出荷対象に当てはまる出荷依頼のみが存在している
+     * Given: 出荷依頼が指し示す物品が、指定数だけ倉庫に存在している
+     * When: 出荷を受け付けた場合
+     * Then: 出荷対象の出荷指示の状態が「出荷済み（SHIPPED）」に遷移する
+     * Then: 倉庫から出荷対象物品が指定数量だけ減少する
+     */
+    @Test
+    public void shouldHandleShippingItemsMessage() throws Exception {
+        // initialize warehouse
+        WarehouseRepository warehouseRepository = WarehouseRepository
+                .getInstance();
+        Warehouse warehouse = warehouseRepository.get();
+        warehouse.arrive(1, 5);
+        warehouse.arrive(2, 5);
+        warehouse.arrive(3, 10);
+        warehouseRepository.set(warehouse);
+
+        // ship request
+        Date now = new Date();
+        Date shippingTime = new Date(now.getTime() + 5 * 1000);
+        Set<Long> expected = new HashSet<Long>();
+        
+        ShippingRequestMessageBean firstShipMessage = ShippingRequestMessageBuilder
+                .newRequest(shippingTime, 
+                            item(id(1), amount(3)),
+                            item(id(2), amount(4))
+                 );
+        long firstShipped = shippingRequest(firstShipMessage);
+        expected.add(firstShipped);
+
+        ShippingRequestMessageBean secondShipMessage = ShippingRequestMessageBuilder
+        .newRequest(shippingTime, 
+                    item(id(2), amount(1)),
+                    item(id(3), amount(9))
+         );
+        long secondShipped = shippingRequest(secondShipMessage);
+        expected.add(secondShipped);
+        
+        // wait until current time become after shippingTime
+        Thread.sleep(1000 * 10);
+        
+        // ship
+        List<Long> shipped = ship();
+        
+        // verify
+        ShippingRequestRepository shippingRequestRepository = ShippingRequestRepository.getInstance();
+        
+        assertTrue(shipped.containsAll(expected));
+        
+        assertEquals(ShippingRequestStatus.SHIPPED, shippingRequestRepository.forId(firstShipped).status());
+        assertEquals(ShippingRequestStatus.SHIPPED, shippingRequestRepository.forId(secondShipped).status());
+        assertEquals(Integer.valueOf(2), warehouse.items().get(Long.valueOf(1)));
+        assertEquals(Integer.valueOf(0), warehouse.items().get(Long.valueOf(2)));
+        assertEquals(Integer.valueOf(1), warehouse.items().get(Long.valueOf(3)));
+    }
+	
+    /**
+     * 出荷: 正常（時間前の依頼が混在）
+     * 
+     * Given: 出荷対象の出荷依頼が存在している
+     * Given: 出荷対象外の出荷依頼（出荷時刻が現在時刻後の依頼）が存在している
+     * Given: 出荷依頼が指し示す物品が、指定数だけ倉庫に存在している
+     * When: 出荷を受け付けた場合
+     * Then: 出荷対象の出荷のみ状態が「出荷済み（SHIPPED）」に遷移する
+     * Then: 倉庫から出荷対象物品が指定数量だけ減少する
+     */
+    @Test
+    public void shouldHandleShippingItemsMessageWhenFutureRequestExist() throws Exception {
+        // initialize warehouse
+        WarehouseRepository warehouseRepository = WarehouseRepository
+                .getInstance();
+        Warehouse warehouse = warehouseRepository.get();
+        warehouse.arrive(1, 5);
+        warehouse.arrive(2, 5);
+        warehouse.arrive(3, 10);
+        warehouseRepository.set(warehouse);
+
+        // ship request
+        Date now = new Date();
+        Date futureTime = new Date(now.getTime() + 1000 * 1000);
+        
+        ShippingRequestMessageBean firstShipMessage = ShippingRequestMessageBuilder
+                .newRequest(futureTime, 
+                            item(id(1), amount(3)),
+                            item(id(2), amount(4))
+                 );
+        long willBeShipped = shippingRequest(firstShipMessage);
+
+        Date shippingTime = new Date(now.getTime() + 5 * 1000);
+        ShippingRequestMessageBean secondShipMessage = ShippingRequestMessageBuilder
+        .newRequest(shippingTime, 
+                    item(id(2), amount(1)),
+                    item(id(3), amount(9))
+         );
+        long beingShipped = shippingRequest(secondShipMessage);
+        
+        // wait until current time become after shippingTime
+        Thread.sleep(1000 * 10);
+        
+        // ship
+        List<Long> shipped = ship();
+        
+        // verify
+        ShippingRequestRepository shippingRequestRepository = ShippingRequestRepository.getInstance();
+        
+        assertEquals(Long.valueOf(beingShipped), Long.valueOf(shipped.get(0)));
+        
+        assertEquals(ShippingRequestStatus.WAIT_FOR_SHIPPING, shippingRequestRepository.forId(willBeShipped).status());
+        assertEquals(ShippingRequestStatus.SHIPPED, shippingRequestRepository.forId(beingShipped).status());
+        assertEquals(Integer.valueOf(5), warehouse.items().get(Long.valueOf(1)));
+        assertEquals(Integer.valueOf(4), warehouse.items().get(Long.valueOf(2)));
+        assertEquals(Integer.valueOf(1), warehouse.items().get(Long.valueOf(3)));
+    }
+    
 	/**
 	 * 物品数：１
 	 * 
@@ -273,5 +399,11 @@ public class WmsServiceTest {
 		long id = service.handleShippingRequest(messageBean);
 		return id;
 	}
+	
+    private static List<Long> ship() {
+        WmsService service = new WmsService();
+        List<Long> shipped = service.handleShip();
+        return shipped;
+    }
 
 }

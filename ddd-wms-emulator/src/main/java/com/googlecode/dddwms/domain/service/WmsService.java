@@ -1,8 +1,10 @@
 package com.googlecode.dddwms.domain.service;
 
-import java.util.Calendar;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,7 @@ import com.googlecode.dddwms.messagebean.ArrivalMessageBean;
 import com.googlecode.dddwms.messagebean.ArrivalRequestMessageBean;
 import com.googlecode.dddwms.messagebean.ShippingItemsMessageBean;
 import com.googlecode.dddwms.messagebean.ShippingRequestMessageBean;
+import com.googlecode.dddwms.util.AbstractPredicate;
 
 public class WmsService {
 
@@ -101,5 +104,30 @@ public class WmsService {
 
 		return shippingId;
 	}
+
+    public List<Long> handleShip() {
+        Set<ShippingRequest> targets = shippingRequestRepository.filter(new AbstractPredicate<ShippingRequest>() {
+            Date now = new Date();
+            @Override
+            public boolean apply(ShippingRequest element) {
+                return element.time().before(now);
+            }
+        }.and(new AbstractPredicate<ShippingRequest>() {
+            @Override
+            public boolean apply(ShippingRequest element) {
+                return element.status() == ShippingRequestStatus.WAIT_FOR_SHIPPING;
+            }
+        }));
+        
+        Warehouse warehouse = warehouseRepository.get();
+        List<Long> shipped = new ArrayList<Long>();
+        
+        for (ShippingRequest request : targets) {
+            request.shipFrom(warehouse);
+            shipped.add(request.id());
+        }
+        
+        return shipped;
+    }
 
 }
