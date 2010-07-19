@@ -19,11 +19,17 @@ import com.googlecode.dddwms.emulator.model.Arrival;
 import com.googlecode.dddwms.emulator.servlet.WebSocket;
 
 public class Emulator implements Runnable {
+	
+	/** 出荷指示間隔 */
+	private static final long SHIP_INTERVAL = 30000;
+	
 	protected Logger log = LoggerFactory.getLogger(Emulator.class);
 	protected WebSocket ws = new WebSocket();
 	protected HttpClient client = new HttpClient();
 	protected String targetUrl;
 	protected Random random = new Random();
+	
+	private long lastShipTime = 0;
 	
 	protected List<Arrival> arrivalList = new ArrayList<Arrival>();
 
@@ -43,6 +49,7 @@ public class Emulator implements Runnable {
 			arrivalRequest();
 			arrival();
 			shippingRequest();
+			ship();
 		} catch (Throwable e) {
 			log.warn(e.getMessage(), e);
 		}
@@ -121,6 +128,20 @@ public class Emulator implements Runnable {
 			command.put("data", post);
 			ws.sendMessage(JSON.toString(command));
 		}
+	}
+	
+	/**
+	 * 出荷
+	 * 出荷指示の間隔ごとごとに出荷リクエストを送信する
+	 */
+	private void ship() {
+		long currentTime = System.currentTimeMillis();
+		if(currentTime - lastShipTime < SHIP_INTERVAL){
+			return;
+		}
+		post("/ship", "{}");
+		lastShipTime = currentTime;
+		// TODO WebSocketとの通信を実装する？
 	}
 	
 	protected List<Map<String, Object>> createItems() {
