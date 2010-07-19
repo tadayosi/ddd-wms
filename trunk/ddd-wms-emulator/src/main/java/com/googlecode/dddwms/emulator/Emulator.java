@@ -132,16 +132,23 @@ public class Emulator implements Runnable {
 	
 	/**
 	 * 出荷
-	 * 出荷指示の間隔ごとごとに出荷リクエストを送信する
+	 * 出荷指示の間隔ごとに出荷リクエストを送信する
 	 */
 	private void ship() {
 		long currentTime = System.currentTimeMillis();
 		if(currentTime - lastShipTime < SHIP_INTERVAL){
 			return;
 		}
-		post("/ship", "{}");
+		String content = post("/ship", "{}");
 		lastShipTime = currentTime;
 		// TODO WebSocketとの通信を実装する？
+		if (content != null) {
+		    log.debug(content);
+		    Map<String, Object> command = new HashMap<String, Object>();
+		    command.put("type", "shipping");
+		    command.put("data", JSON.parse(content));
+		    ws.sendMessage(JSON.toString(command));
+		}
 	}
 	
 	protected List<Map<String, Object>> createItems() {

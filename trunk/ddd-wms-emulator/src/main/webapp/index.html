@@ -37,12 +37,15 @@ var ws = $.websocket("ws://localhost:8080/emulator/ws", {
 				.appendTo('#shippingRequest')
 		},
 		shipping: function(e) {
-			var $s = $('#shipping-' + e.data.id);
-			$s.addClass('shipping');
-			$s.fadeOut();
-			$s.slideUp(function(){
-				$(this).remove();
-			})
+			for (i = 0; i < e.data.items.length; i++) {
+	            var $s = $('#shipping-' + e.data.items[i].id);
+	            $s.addClass('shipping');
+	            $s.fadeOut();
+	            $s.slideUp(function(){
+	                $(this).remove();
+	            })
+			}
+
 		}
 	}
 });
