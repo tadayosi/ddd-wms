@@ -26,107 +26,114 @@ import com.googlecode.dddwms.util.AbstractPredicate;
 
 public class WmsService {
 
-	private ArrivalRequestRepository arrivalRequestRepository = ArrivalRequestRepository.getInstance();
+    private ArrivalRequestRepository arrivalRequestRepository = ArrivalRequestRepository
+            .getInstance();
 
-	private WarehouseRepository warehouseRepository = WarehouseRepository.getInstance();
+    private WarehouseRepository warehouseRepository = WarehouseRepository
+            .getInstance();
 
-	private ShippingRequestRepository  shippingRequestRepository = ShippingRequestRepository.getInstance();
-	
-	private Logger log = LoggerFactory.getLogger(WmsService.class);
+    private ShippingRequestRepository shippingRequestRepository = ShippingRequestRepository
+            .getInstance();
 
-	public long handleArrivalRequest(ArrivalRequestMessageBean message) {
+    private Logger log = LoggerFactory.getLogger(WmsService.class);
 
-		long arrivalId = arrivalRequestRepository.nextId();
+    public long handleArrivalRequest(ArrivalRequestMessageBean message) {
 
-		ArrivalRequest request = new ArrivalRequest(arrivalId, message.time);
+        long arrivalId = arrivalRequestRepository.nextId();
 
-		for (ArrivalItemsMessageBean item : message.items) {
-			request.putAmount(item.id, item.amount);
-		}
+        ArrivalRequest request = new ArrivalRequest(arrivalId, message.time);
 
-		arrivalRequestRepository.add(request);
+        for (ArrivalItemsMessageBean item : message.items) {
+            request.putAmount(item.id, item.amount);
+        }
 
-		return arrivalId;
-	}
+        arrivalRequestRepository.add(request);
 
-	public void handleArrival(ArrivalMessageBean message) {
+        return arrivalId;
+    }
 
-		// TODO テストケース未実装
-		if (!arrivalRequestRepository.exists(message.id)) {
-			log.error("arrival request not found:{}", message.id);
-			return;
-		}
+    public void handleArrival(ArrivalMessageBean message) {
 
-		ArrivalRequest request = arrivalRequestRepository.forId(message.id);
+        // TODO テストケース未実装
+        if (!arrivalRequestRepository.exists(message.id)) {
+            log.error("arrival request not found:{}", message.id);
+            return;
+        }
 
-		// TODO テストケース未実装
-		if (request.status() == ArrivalRequestStatus.ARRIVED) {
-			log.error("already arrived:{}", message.id);
-			return;
-		}
+        ArrivalRequest request = arrivalRequestRepository.forId(message.id);
 
-		Warehouse warehouse = warehouseRepository.get();
-		for (Entry<Long, Integer> entry : request.amounts().entrySet()) {
-			long itemId = entry.getKey().longValue();
-			int amount = entry.getValue().intValue();
-			warehouse.arrive(itemId, amount);
-		}
+        // TODO テストケース未実装
+        if (request.status() == ArrivalRequestStatus.ARRIVED) {
+            log.error("already arrived:{}", message.id);
+            return;
+        }
 
-		warehouseRepository.set(warehouse);
-		request.arrived();
-	}
+        Warehouse warehouse = warehouseRepository.get();
+        for (Entry<Long, Integer> entry : request.amounts().entrySet()) {
+            long itemId = entry.getKey().longValue();
+            int amount = entry.getValue().intValue();
+            warehouse.arrive(itemId, amount);
+        }
 
-	public long handleShippingRequest(ShippingRequestMessageBean message) {
+        warehouseRepository.set(warehouse);
+        request.arrived();
+    }
 
-		long shippingId = shippingRequestRepository.nextId();
-		ShippingRequest request = new ShippingRequest(shippingId, message.time);	
+    public long handleShippingRequest(ShippingRequestMessageBean message) {
 
-		for (ShippingItemsMessageBean item : message.items) {
-			request.putAmount(item.id, item.amount);
-		}
-		
-		shippingRequestRepository.add(request);
-		
-		//指定時刻に達しているか
-		Date now = new Date();
-		if ( request.time().after(now)  ) {
-			log.info("ShippingId:{} still have shippingRequestTime:{}  ",shippingId,request.time().toString()+ " <=> now:" + now.toString() );
-		}else {
-			Warehouse warehouse = warehouseRepository.get();
-			for (Entry<Long, Integer> entry : request.amounts().entrySet()) {
-				long itemId = entry.getKey().longValue();
-				int amount = entry.getValue().intValue();
-				warehouse.ship(itemId, amount);
-			}
-			request.shipped();
-			shippingRequestRepository.add(request);
-		}
+        long shippingId = shippingRequestRepository.nextId();
+        ShippingRequest request = new ShippingRequest(shippingId, message.time);
 
-		return shippingId;
-	}
+        for (ShippingItemsMessageBean item : message.items) {
+            request.putAmount(item.id, item.amount);
+        }
+
+        shippingRequestRepository.add(request);
+
+        // 指定時刻に達しているか
+        Date now = new Date();
+        if (request.time().after(now)) {
+            log.info("ShippingId:{} still have shippingRequestTime:{}  ",
+                    shippingId,
+                    request.time().toString() + " <=> now:" + now.toString());
+        } else {
+            Warehouse warehouse = warehouseRepository.get();
+            for (Entry<Long, Integer> entry : request.amounts().entrySet()) {
+                long itemId = entry.getKey().longValue();
+                int amount = entry.getValue().intValue();
+                warehouse.ship(itemId, amount);
+            }
+            request.shipped();
+            shippingRequestRepository.add(request);
+        }
+
+        return shippingId;
+    }
 
     public List<Long> handleShip() {
-        Set<ShippingRequest> targets = shippingRequestRepository.filter(new AbstractPredicate<ShippingRequest>() {
-            Date now = new Date();
-            @Override
-            public boolean apply(ShippingRequest element) {
-                return element.time().before(now);
-            }
-        }.and(new AbstractPredicate<ShippingRequest>() {
-            @Override
-            public boolean apply(ShippingRequest element) {
-                return element.status() == ShippingRequestStatus.WAIT_FOR_SHIPPING;
-            }
-        }));
-        
+        Set<ShippingRequest> targets = shippingRequestRepository
+                .filter(new AbstractPredicate<ShippingRequest>() {
+                    Date now = new Date();
+
+                    @Override
+                    public boolean apply(ShippingRequest element) {
+                        return element.time().before(now);
+                    }
+                }.and(new AbstractPredicate<ShippingRequest>() {
+                    @Override
+                    public boolean apply(ShippingRequest element) {
+                        return element.status() == ShippingRequestStatus.WAIT_FOR_SHIPPING;
+                    }
+                }));
+
         Warehouse warehouse = warehouseRepository.get();
         List<Long> shipped = new ArrayList<Long>();
-        
+
         for (ShippingRequest request : targets) {
             request.shipFrom(warehouse);
             shipped.add(request.id());
         }
-        
+
         return shipped;
     }
 

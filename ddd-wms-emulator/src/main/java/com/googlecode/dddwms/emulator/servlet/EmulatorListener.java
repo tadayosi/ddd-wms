@@ -12,21 +12,24 @@ import org.slf4j.LoggerFactory;
 
 import com.googlecode.dddwms.emulator.Emulator;
 
-
 public class EmulatorListener implements ServletContextListener {
-	private static final Logger log = LoggerFactory.getLogger(EmulatorListener.class);
-	private ScheduledExecutorService emulatorService = Executors.newSingleThreadScheduledExecutor();
-	
-	@Override
-	public void contextInitialized(ServletContextEvent sce) {
-		log.debug("EmulatorManager initialize start");
-		String targetUrl = sce.getServletContext().getInitParameter("targetUrl");
-		emulatorService.scheduleWithFixedDelay(new Emulator(targetUrl), 1, 1, TimeUnit.SECONDS);
-		log.debug("EmulatorManager initialize end");
-	}
+    private static final Logger log = LoggerFactory
+            .getLogger(EmulatorListener.class);
+    private ScheduledExecutorService emulatorService = Executors
+            .newSingleThreadScheduledExecutor();
 
-	@Override
-	public void contextDestroyed(ServletContextEvent sce) {
-		emulatorService.shutdown();
-	}
+    @Override
+    public void contextInitialized(ServletContextEvent sce) {
+        log.debug("EmulatorManager initialize start");
+        String targetUrl = sce.getServletContext()
+                .getInitParameter("targetUrl");
+        emulatorService.scheduleWithFixedDelay(new Emulator(targetUrl), 1, 1,
+                TimeUnit.SECONDS);
+        log.debug("EmulatorManager initialize end");
+    }
+
+    @Override
+    public void contextDestroyed(ServletContextEvent sce) {
+        emulatorService.shutdown();
+    }
 }
