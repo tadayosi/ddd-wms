@@ -5,8 +5,8 @@ import java.util.List;
 
 public class ShippingRequestMessageBean {
 
-	public Date time = null;
+    public Date time = null;
 
-	public List<ShippingItemsMessageBean> items = null;
+    public List<ShippingItemsMessageBean> items = null;
 
 }

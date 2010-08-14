@@ -7,24 +7,24 @@ import com.googlecode.dddwms.domain.model.Warehouse;
 
 public class WarehouseRepository {
 
-	private static WarehouseRepository _instance = new WarehouseRepository();
+    private static WarehouseRepository _instance = new WarehouseRepository();
 
-	private Logger log = LoggerFactory.getLogger(WarehouseRepository.class);
+    private Logger log = LoggerFactory.getLogger(WarehouseRepository.class);
 
-	private Warehouse _warehouse = new Warehouse();
+    private Warehouse _warehouse = new Warehouse();
 
-	public static WarehouseRepository getInstance() {
-		return _instance;
-	}
+    public static WarehouseRepository getInstance() {
+        return _instance;
+    }
 
-	public Warehouse get() {
-		return _warehouse;
-	}
+    public Warehouse get() {
+        return _warehouse;
+    }
 
-	public void set(Warehouse warehouse) {
-		log.info("warehouse updated - inside:{}", warehouse.items());
-		_warehouse = warehouse;
-	}
+    public void set(Warehouse warehouse) {
+        log.info("warehouse updated - inside:{}", warehouse.items());
+        _warehouse = warehouse;
+    }
 
     public void init() {
         _warehouse = new Warehouse();
