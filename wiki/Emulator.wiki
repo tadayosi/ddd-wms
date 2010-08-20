@@ -78,16 +78,18 @@
   ** id : 出荷指示に対してサーバサイドで採番されたID
 
 === 出荷 ===
-  * URL
+ * URL
  ${baseUrl}/ship/
-  * POST
+
+ * POST
 {{{
 {
   "specifiedShipTime": 1276665830644
 }
 }}}
-  ** 出荷指定時刻：出荷指示のtimeがこの時間以前のものを出荷する。
-  * Response
+  ** specifiedShipTime（出荷指定時刻）：出荷指示のtimeがこの時間以前のものを出荷する。
+
+ * Response
 {{{
 {
   "items": [
