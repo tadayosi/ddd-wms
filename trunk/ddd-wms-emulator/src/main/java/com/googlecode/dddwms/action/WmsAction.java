@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import com.googlecode.dddwms.domain.service.WmsService;
 import com.googlecode.dddwms.messagebean.ArrivalMessageBean;
 import com.googlecode.dddwms.messagebean.ArrivalRequestMessageBean;
+import com.googlecode.dddwms.messagebean.ShipMessageBean;
 import com.googlecode.dddwms.messagebean.ShippingRequestMessageBean;
 
 public class WmsAction {
@@ -55,8 +56,11 @@ public class WmsAction {
     }
 
     /** ship */
-    public List<Long> ship() {
-        log.info("ship");
-        return new WmsService().handleShip();
+    public List<Long> ship(String jsonMessage) {
+        log.info("ship:{}", jsonMessage);
+        
+        ShipMessageBean message = JSON.decode(jsonMessage, ShipMessageBean.class);
+        
+        return new WmsService().handleShip(message);
     }
 }

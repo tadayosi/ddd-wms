@@ -28,6 +28,7 @@ import com.googlecode.dddwms.lang.ShippingRequestMessageBuilder;
 import com.googlecode.dddwms.messagebean.ArrivalItemsMessageBean;
 import com.googlecode.dddwms.messagebean.ArrivalMessageBean;
 import com.googlecode.dddwms.messagebean.ArrivalRequestMessageBean;
+import com.googlecode.dddwms.messagebean.ShipMessageBean;
 import com.googlecode.dddwms.messagebean.ShippingItemsMessageBean;
 import com.googlecode.dddwms.messagebean.ShippingRequestMessageBean;
 
@@ -246,22 +247,21 @@ public class WmsServiceTest {
         Set<Long> expected = new HashSet<Long>();
 
         ShippingRequestMessageBean firstShipMessage = ShippingRequestMessageBuilder
-                .newRequest(shippingTime, item(id(1), amount(3)),
-                        item(id(2), amount(4)));
+                .newRequest(shippingTime, item(id(1), amount(3)), item(id(2),
+                        amount(4)));
         long firstShipped = shippingRequest(firstShipMessage);
         expected.add(firstShipped);
 
         ShippingRequestMessageBean secondShipMessage = ShippingRequestMessageBuilder
-                .newRequest(shippingTime, item(id(2), amount(1)),
-                        item(id(3), amount(9)));
+                .newRequest(shippingTime, item(id(2), amount(1)), item(id(3),
+                        amount(9)));
         long secondShipped = shippingRequest(secondShipMessage);
         expected.add(secondShipped);
 
-        // wait until current time become after shippingTime
-        Thread.sleep(1000 * 10);
-
         // ship
-        List<Long> shipped = ship();
+        Date specifiedShipTime = new Date(now.getTime() + 10 * 1000);
+        ShipMessageBean shipMessage = createShipMessage(specifiedShipTime);
+        List<Long> shipped = ship(shipMessage);
 
         // verify
         ShippingRequestRepository shippingRequestRepository = ShippingRequestRepository
@@ -305,21 +305,20 @@ public class WmsServiceTest {
         Date futureTime = new Date(now.getTime() + 1000 * 1000);
 
         ShippingRequestMessageBean firstShipMessage = ShippingRequestMessageBuilder
-                .newRequest(futureTime, item(id(1), amount(3)),
-                        item(id(2), amount(4)));
+                .newRequest(futureTime, item(id(1), amount(3)), item(id(2),
+                        amount(4)));
         long willBeShipped = shippingRequest(firstShipMessage);
 
         Date shippingTime = new Date(now.getTime() + 5 * 1000);
         ShippingRequestMessageBean secondShipMessage = ShippingRequestMessageBuilder
-                .newRequest(shippingTime, item(id(2), amount(1)),
-                        item(id(3), amount(9)));
+                .newRequest(shippingTime, item(id(2), amount(1)), item(id(3),
+                        amount(9)));
         long beingShipped = shippingRequest(secondShipMessage);
 
-        // wait until current time become after shippingTime
-        Thread.sleep(1000 * 10);
-
         // ship
-        List<Long> shipped = ship();
+        Date specifiedShipTime = new Date(now.getTime() + 10 * 1000);
+        ShipMessageBean shipMessage = createShipMessage(specifiedShipTime);
+        List<Long> shipped = ship(shipMessage);
 
         // verify
         ShippingRequestRepository shippingRequestRepository = ShippingRequestRepository
@@ -405,15 +404,22 @@ public class WmsServiceTest {
         return messageBean;
     }
 
+    private static ShipMessageBean createShipMessage(Date specifiedShipTime) {
+        // message bean
+        ShipMessageBean messageBean = new ShipMessageBean();
+        messageBean.specifiedShipTime = specifiedShipTime;
+        return messageBean;
+    }
+
     private static long shippingRequest(ShippingRequestMessageBean messageBean) {
         WmsService service = new WmsService();
         long id = service.handleShippingRequest(messageBean);
         return id;
     }
 
-    private static List<Long> ship() {
+    private static List<Long> ship(ShipMessageBean messageBean) {
         WmsService service = new WmsService();
-        List<Long> shipped = service.handleShip();
+        List<Long> shipped = service.handleShip(messageBean);
         return shipped;
     }
 
