@@ -80,10 +80,13 @@
 === 出荷 ===
   * URL
  ${baseUrl}/ship/
-
   * POST
-    * メッセージなし
-
+{{{
+{
+  "specifiedShipTime": 1276665830644
+}
+}}}
+  ** 出荷指定時刻：出荷指示のtimeがこの時間以前のものを出荷する。
   * Response
 {{{
 {
