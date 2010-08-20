@@ -46,7 +46,7 @@ public class MockServlet extends HttpServlet {
 
         } else if (pathInfo.matches("/ship")) {
 
-            handleShip(resp);
+            handleShip(resp, message);
 
         } else {
             resp.setStatus(404);
@@ -73,9 +73,10 @@ public class MockServlet extends HttpServlet {
         resp.getWriter().printf("{\"id\":%d}", shippingId);
     }
 
-    private void handleShip(HttpServletResponse resp) throws IOException {
+    private void handleShip(HttpServletResponse resp, String message)
+            throws IOException {
 
-        List<Long> shippedIds = action.ship();
+        List<Long> shippedIds = action.ship(message);
 
         StringBuilder sb = new StringBuilder();
         for (long id : shippedIds) {
@@ -95,8 +96,8 @@ public class MockServlet extends HttpServlet {
     }
 
     private static String messageIn(HttpServletRequest req) throws IOException {
-        BufferedReader r = new BufferedReader(new InputStreamReader(
-                req.getInputStream()));
+        BufferedReader r = new BufferedReader(new InputStreamReader(req
+                .getInputStream()));
         String message = r.readLine();
 
         // assert

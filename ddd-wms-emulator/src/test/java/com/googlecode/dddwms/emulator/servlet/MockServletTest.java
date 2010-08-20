@@ -36,7 +36,7 @@ public class MockServletTest {
         result.add(111L);
         result.add(222L);
         WmsAction mockAction = mock(WmsAction.class);
-        when(mockAction.ship()).thenReturn(result);
+        when(mockAction.ship("{\"specifiedShipTime\":1}")).thenReturn(result);
 
         // HttpServletRequest
         HttpServletRequest req = mock(HttpServletRequest.class);
@@ -44,9 +44,11 @@ public class MockServletTest {
 
         // InputStream
         ServletInputStream mockInputStream = new ServletInputStream() {
+            private StringReader reader = new StringReader(
+                    "{\"specifiedShipTime\":1}");
+
             @Override
             public int read() throws IOException {
-                StringReader reader = new StringReader("");
                 return reader.read();
             }
         };
@@ -62,8 +64,8 @@ public class MockServletTest {
         servlet.doPost(req, resp);
 
         /* VERIFY */
-        assertEquals("{\"items\":[{\"id\":111},{\"id\":222}]}",
-                writer.toString());
+        assertEquals("{\"items\":[{\"id\":111},{\"id\":222}]}", writer
+                .toString());
     }
 
     private static MockServlet mockServlet(WmsAction mockAction)

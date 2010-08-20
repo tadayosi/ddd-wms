@@ -3,8 +3,8 @@ package com.googlecode.dddwms.domain.service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +20,7 @@ import com.googlecode.dddwms.domain.repository.WarehouseRepository;
 import com.googlecode.dddwms.messagebean.ArrivalItemsMessageBean;
 import com.googlecode.dddwms.messagebean.ArrivalMessageBean;
 import com.googlecode.dddwms.messagebean.ArrivalRequestMessageBean;
+import com.googlecode.dddwms.messagebean.ShipMessageBean;
 import com.googlecode.dddwms.messagebean.ShippingItemsMessageBean;
 import com.googlecode.dddwms.messagebean.ShippingRequestMessageBean;
 import com.googlecode.dddwms.util.AbstractPredicate;
@@ -94,8 +95,8 @@ public class WmsService {
         Date now = new Date();
         if (request.time().after(now)) {
             log.info("ShippingId:{} still have shippingRequestTime:{}  ",
-                    shippingId,
-                    request.time().toString() + " <=> now:" + now.toString());
+                    shippingId, request.time().toString() + " <=> now:"
+                            + now.toString());
         } else {
             Warehouse warehouse = warehouseRepository.get();
             for (Entry<Long, Integer> entry : request.amounts().entrySet()) {
@@ -110,14 +111,16 @@ public class WmsService {
         return shippingId;
     }
 
-    public List<Long> handleShip() {
+    public List<Long> handleShip(ShipMessageBean shipMessageBean) {
+
+        final Date specifiedShipTime = shipMessageBean.specifiedShipTime;
+
         Set<ShippingRequest> targets = shippingRequestRepository
                 .filter(new AbstractPredicate<ShippingRequest>() {
-                    Date now = new Date();
 
                     @Override
                     public boolean apply(ShippingRequest element) {
-                        return element.time().before(now);
+                        return element.time().before(specifiedShipTime);
                     }
                 }.and(new AbstractPredicate<ShippingRequest>() {
                     @Override

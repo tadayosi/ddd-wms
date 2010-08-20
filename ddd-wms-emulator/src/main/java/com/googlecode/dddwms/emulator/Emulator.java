@@ -140,7 +140,9 @@ public class Emulator implements Runnable {
         if (currentTime - lastShipTime < SHIP_INTERVAL) {
             return;
         }
-        String content = post("/ship", "{}");
+        Map<String, Object> post = new HashMap<String, Object>();
+        post.put("specifiedShipTime", currentTime);
+        String content = post("/ship", JSON.toString(post));
         lastShipTime = currentTime;
         // TODO WebSocketとの通信を実装する？
         if (content != null) {
