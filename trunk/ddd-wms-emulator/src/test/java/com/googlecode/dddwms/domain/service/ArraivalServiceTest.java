@@ -20,7 +20,7 @@ import com.googlecode.dddwms.messagebean.ArrivalRequestMessageBean;
  */
 public class ArraivalServiceTest {
 
-    private WmsService service; // TODO:入荷サービスへの置き換え
+    private WmsService service = new WmsService();// TODO:入荷サービスへの置き換え;
     private Warehouse mockWarehouse;
     private static final long SETUP_ITEM_ID = 2L;
     private static final int SETUP_ITEM_AMOUNT = 3;
@@ -31,7 +31,6 @@ public class ArraivalServiceTest {
      */
     @Before
     public void setUp() throws NoSuchFieldException, IllegalAccessException {
-        service = new WmsService();// TODO:入荷サービスへの置き換え
         WarehouseRepository _warehouseRepository = WarehouseRepository
                 .getInstance();
         // mockWarehouse = mock(Warehouse.class);
@@ -59,24 +58,24 @@ public class ArraivalServiceTest {
         int _registeredAmount = mockWarehouse.count(SETUP_ITEM_ID);
 
         // 追加する物品数
-        int _addedAmount = 4;
+        int _addAmount = 4;
 
         // 入荷受付
-        acceptArraivalRequest(SETUP_ITEM_ID, _addedAmount);
+        long _internalId = acceptArraivalRequest(SETUP_ITEM_ID, _addAmount);
 
         // 入荷
         ArrivalMessageBean _internalMessage = new ArrivalMessageBean();
-        _internalMessage.id = 1L;
+        _internalMessage.id = _internalId;
         service.handleArrival(_internalMessage);
 
         // when(mockWarehouse.count(SETUP_ITEM_ID)).thenReturn(
         // _addedAmount + SETUP_ITEM_AMOUNT);
-        assertEquals(_registeredAmount + _addedAmount, mockWarehouse
+        assertEquals(_registeredAmount + _addAmount, mockWarehouse
                 .count(SETUP_ITEM_ID));
 
     }
 
-    private void acceptArraivalRequest(final long addedId, final int addedAmount) {
+    private long acceptArraivalRequest(final long addedId, final int addedAmount) {
         ArrivalItemsMessageBean _item = new ArrivalItemsMessageBean();
         _item.id = addedId;
         _item.amount = addedAmount;
@@ -90,6 +89,6 @@ public class ArraivalServiceTest {
         // 入荷済み物品に対してaddedAmount個、入荷受付
         _request.time = new Date();
         _request.items = _items;
-        service.handleArrivalRequest(_request);
+        return service.handleArrivalRequest(_request);
     }
 }
