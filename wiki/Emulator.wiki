@@ -108,6 +108,6 @@
   * JSONICのSeasarリポジトリがうまく動かなかったので、コメントアウトしています。
   * 以下のコードでローカルにインストールして下さい。
 {{{
-mvn install:install-file -DgroupId=net.arnx.jsonic -DartifactId=jsonic -Dversion=1.2.0 -Dpackaging=jar -Dfile=/path/to/jarfile.jar
+mvn install:install-file -DgroupId=net.arnx.jsonic -DartifactId=jsonic -Dversion=1.2.0 -Dpackaging=jar -DgeneratePom=true -Dfile=/path/to/jarfile.jar
 }}}
   * [http://jsonic.sourceforge.jp/ JSONIC]のサイト
