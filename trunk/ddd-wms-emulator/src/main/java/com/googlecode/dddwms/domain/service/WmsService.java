@@ -41,11 +41,12 @@ public class WmsService {
     public long handleArrivalRequest(ArrivalRequestMessageBean message) {
 
         long arrivalId = arrivalRequestRepository.nextId();
-
         ArrivalRequest request = new ArrivalRequest(arrivalId, message.time);
-
+        
+        Item arrivalItem = null;
         for (ArrivalItemsMessageBean item : message.items) {
-            request.putAmount(item.id, item.amount);
+            arrivalItem = new Item(item.id);
+            request.putAmount(arrivalItem , item.amount );
         }
 
         arrivalRequestRepository.add(request);
@@ -70,8 +71,8 @@ public class WmsService {
         }
 
         Warehouse warehouse = warehouseRepository.get();
-        for (Entry<Long, Integer> entry : request.amounts().entrySet()) {
-            long itemId = entry.getKey().longValue();
+        for (Entry<Item, Integer> entry : request.amounts().entrySet()) {
+            Item itemId = entry.getKey();
             int amount = entry.getValue().intValue();
             warehouse.arrive(itemId, amount);
         }
@@ -85,8 +86,10 @@ public class WmsService {
         long shippingId = shippingRequestRepository.nextId();
         ShippingRequest request = new ShippingRequest(shippingId, message.time);
 
+        Item shippingItem = null;
         for (ShippingItemsMessageBean item : message.items) {
-            request.putAmount(item.id, item.amount);
+            shippingItem = new Item(item.id);
+            request.putAmount(shippingItem, item.amount);
         }
 
         shippingRequestRepository.add(request);
@@ -99,8 +102,9 @@ public class WmsService {
                             + now.toString());
         } else {
             Warehouse warehouse = warehouseRepository.get();
-            for (Entry<Long, Integer> entry : request.amounts().entrySet()) {
-                long itemId = entry.getKey().longValue();
+            for (Entry<Item, Integer> entry : request.amounts().entrySet()) {
+                //long itemId = entry.getKey().longValue();
+                Item itemId = entry.getKey();
                 int amount = entry.getValue().intValue();
                 warehouse.ship(itemId, amount);
             }

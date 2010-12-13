@@ -1,7 +1,6 @@
 package com.googlecode.dddwms.domain.service;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,7 +34,9 @@ public class ArraivalServiceTest {
                 .getInstance();
         // mockWarehouse = mock(Warehouse.class);
         mockWarehouse = _warehouseRepository.get();
-        mockWarehouse.arrive(SETUP_ITEM_ID, SETUP_ITEM_AMOUNT);
+        Item itemTest = new Item(SETUP_ITEM_ID);
+        //mockWarehouse.arrive(SETUP_ITEM_ID, SETUP_ITEM_AMOUNT);
+        mockWarehouse.arrive(itemTest, SETUP_ITEM_AMOUNT);
         _warehouseRepository.set(mockWarehouse);
 
         Field _warehouseRepoField = service.getClass().getDeclaredField(
@@ -55,8 +56,11 @@ public class ArraivalServiceTest {
     public void shouldHandleArrivalMessageWhenItemAdded() throws Exception {
 
         // テスト前の物品数
-        int _registeredAmount = mockWarehouse.count(SETUP_ITEM_ID);
+        Item itemTest = new Item(SETUP_ITEM_ID);
+        //int _registeredAmount = mockWarehouse.count(SETUP_ITEM_ID);
+        int _registeredAmount = mockWarehouse.count(itemTest);
 
+        
         // 追加する物品数
         int _addAmount = 4;
 
@@ -70,8 +74,8 @@ public class ArraivalServiceTest {
 
         // when(mockWarehouse.count(SETUP_ITEM_ID)).thenReturn(
         // _addedAmount + SETUP_ITEM_AMOUNT);
-        assertEquals(_registeredAmount + _addAmount, mockWarehouse
-                .count(SETUP_ITEM_ID));
+        //assertEquals(_registeredAmount + _addAmount, mockWarehouse.count(SETUP_ITEM_ID));
+        assertEquals(_registeredAmount + _addAmount, mockWarehouse.count(itemTest));
 
     }
 

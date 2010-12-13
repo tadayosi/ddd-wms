@@ -6,43 +6,41 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.googlecode.dddwms.domain.service.Item;
+
 public class Warehouse {
 
     private Logger log = LoggerFactory.getLogger(Warehouse.class);
 
-    private Map<Long, Integer> items = new HashMap<Long, Integer>();
+    private Map<Item, Integer> items = new HashMap<Item, Integer>();
 
-    public int count(long itemId) {
-        Long key = keyFor(itemId);
-        return items.containsKey(key) ? Integer.valueOf(items.get(key)) : 0;
+    public int count(Item item) {
+        return items.containsKey(item) ? Integer.valueOf(items.get(item)) : 0;
     }
 
-    public void arrive(long itemId, int amount) {
-
-        Long key = keyFor(itemId);
+    public void arrive(Item item, int amount) {
 
         int currentAmount = 0;
-        if (items.containsKey(key)) {
-            currentAmount = items.get(key).intValue();
+        if (items.containsKey(item)) {
+            currentAmount = items.get(item).intValue();
         }
 
         int newAmount = currentAmount + amount;
-        items.put(key, Integer.valueOf(newAmount));
+        items.put(item, Integer.valueOf(newAmount));
 
-        log.info("item arrived - item:{} amount:{}", itemId, currentAmount
+        log.info("item arrived - item:{} amount:{}", item.id(), currentAmount
                 + " -> " + newAmount);
     }
 
-    public void ship(long id, int amount) {
-        Long key = keyFor(id);
+    public void ship(Item item, int amount) {
 
         // item not found
-        if (!items.containsKey(key)) {
-            log.error("item not found:{}", id);
+        if (!items.containsKey(item)) {
+            log.error("item not found:{}", item.id());
             return;
         }
 
-        int currentAmount = items.get(key).intValue();
+        int currentAmount = items.get(item).intValue();
 
         // item out of stock
         if (currentAmount < amount) {
@@ -53,18 +51,14 @@ public class Warehouse {
         }
 
         int newAmount = currentAmount - amount;
-        items.put(key, Integer.valueOf(newAmount));
+        items.put(item, Integer.valueOf(newAmount));
 
-        log.info("item shipped - item:{} amount:{}", id, currentAmount + " -> "
+        log.info("item shipped - item:{} amount:{}", item.id(), currentAmount + " -> "
                 + newAmount);
     }
 
-    public Map<Long, Integer> items() {
-        return new HashMap<Long, Integer>(items);
-    }
-
-    private static Long keyFor(long itemId) {
-        return Long.valueOf(itemId);
+    public Map<Item, Integer> items() {
+        return new HashMap<Item, Integer>(items);
     }
 
 }
