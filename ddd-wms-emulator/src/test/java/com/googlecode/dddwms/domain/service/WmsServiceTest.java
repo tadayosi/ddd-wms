@@ -52,19 +52,20 @@ public class WmsServiceTest {
     public void shouldHandleArrivalRequestMessage() throws Exception {
 
         Date now = new Date();
-
+        Item arrivedItem = new Item(1L);
+        
         // message
         ArrivalRequestMessageBean messageBean = createArrivalRequestMessage(now);
-
+        
         // execute
         long id = arrivalRequest(messageBean);
-
+        
         // verify
-        ArrivalRequest request = ArrivalRequestRepository.getInstance().forId(
-                id);
+        ArrivalRequest request = ArrivalRequestRepository.getInstance().forId(id);
+
         assertEquals(id, request.id());
         assertEquals(now, request.time());
-        assertEquals(3, request.amountOf(1L));
+        assertEquals(3, request.amountOf(arrivedItem));
         assertEquals(ArrivalRequestStatus.WAIT_FOR_ARRIVAL, request.status());
 
     }
@@ -84,16 +85,15 @@ public class WmsServiceTest {
         Date now = new Date();
         ArrivalRequestMessageBean messageBean = createArrivalRequestMessage(now);
         long requestId = arrivalRequest(messageBean);
+        Item arrivedItem = new Item(1L);
 
         // message bean
         ArrivalMessageBean message = createArrivalMessage(requestId);
-
         // execute
         arrival(message);
-
         // verify
         Warehouse warehouse = WarehouseRepository.getInstance().get();
-        assertEquals(3, warehouse.count(1L));
+        assertEquals(3, warehouse.count(arrivedItem));
 
         ArrivalRequest request = ArrivalRequestRepository.getInstance().forId(
                 requestId);
@@ -123,11 +123,17 @@ public class WmsServiceTest {
     @Test
     public void shouldHandleShippingRequestAtTheTime() throws Exception {
         // setup
+        int arriveItemAmount = 5;
+        int shippingRequestItemAmount = 3;
+        long testTargetId = 2L;
+        Item arrivedItem = new Item(testTargetId);
+        Item shippedItem = new Item(testTargetId);
+        
         WarehouseRepository warehouseRepository = WarehouseRepository
                 .getInstance();
         {
             Warehouse warehouse = warehouseRepository.get();
-            warehouse.arrive(2, 5);
+            warehouse.arrive(arrivedItem, arriveItemAmount);
             warehouseRepository.set(warehouse);
         }
         Date now = new Date();
@@ -136,7 +142,7 @@ public class WmsServiceTest {
 
         // message
         ShippingRequestMessageBean messageBean = createShippingRequestMessage(
-                inputDate, 2L, 3);
+                inputDate, shippedItem, shippingRequestItemAmount);
         // execute
         long id = shippingRequest(messageBean);
 
@@ -145,13 +151,13 @@ public class WmsServiceTest {
                 .forId(id);
         assertEquals(id, request.id());
         assertEquals(inputDate, request.time());
-        assertEquals(3, request.amountOf(2L));
+        assertEquals(shippingRequestItemAmount, request.amountOf(shippedItem));
         assertEquals(ShippingRequestStatus.SHIPPED, request.status());
 
         // verify
         Warehouse warehouse = warehouseRepository.get();
         // ５個入荷／３個出荷→残りは2個
-        assertEquals(2, warehouse.count(2));
+        assertEquals(arriveItemAmount - shippingRequestItemAmount , warehouse.count(new Item(testTargetId)));
     }
 
     /**
@@ -164,11 +170,15 @@ public class WmsServiceTest {
     @Test
     public void shouldHandleShippingRequestStillHaveTime() throws Exception {
         // setup
-        WarehouseRepository warehouseRepository = WarehouseRepository
-                .getInstance();
+        int arriveItemAmount = 5;
+        int shippingRequestItemAmount = 3;
+        long testTargetId = 3L;
+        Item arrivedItem = new Item(testTargetId);
+        Item shippedItem = new Item(testTargetId);
+        WarehouseRepository warehouseRepository = WarehouseRepository.getInstance();
         {
             Warehouse warehouse = warehouseRepository.get();
-            warehouse.arrive(3, 5);
+            warehouse.arrive(arrivedItem, arriveItemAmount);
             warehouseRepository.set(warehouse);
         }
         Date now = new Date();
@@ -177,22 +187,21 @@ public class WmsServiceTest {
 
         // message
         ShippingRequestMessageBean messageBean = createShippingRequestMessage(
-                inputDate, 3L, 3);
+                inputDate, shippedItem, shippingRequestItemAmount);
         // execute
         long id = shippingRequest(messageBean);
 
         // verify
-        ShippingRequest request = ShippingRequestRepository.getInstance()
-                .forId(id);
+        ShippingRequest request = ShippingRequestRepository.getInstance().forId(id);
         assertEquals(id, request.id());
         assertEquals(inputDate, request.time());
-        assertEquals(3, request.amountOf(3L));
+        assertEquals(3, request.amountOf(shippedItem));
         assertEquals(ShippingRequestStatus.WAIT_FOR_SHIPPING, request.status());
 
         // verify
         Warehouse warehouse = warehouseRepository.get();
         // ５個入荷／３個出荷→出荷待ちであるため、残りは5個のまま。
-        assertEquals(5, warehouse.count(3));
+        assertEquals(arriveItemAmount, warehouse.count(shippedItem));
     }
 
     /**
@@ -236,25 +245,33 @@ public class WmsServiceTest {
         WarehouseRepository warehouseRepository = WarehouseRepository
                 .getInstance();
         Warehouse warehouse = warehouseRepository.get();
-        warehouse.arrive(1, 5);
-        warehouse.arrive(2, 5);
-        warehouse.arrive(3, 10);
+        long testTargetId1 = 1L;
+        long testTargetId2 = 2L;
+        long testTargetId3 = 3L;
+        
+        Item arrivedItem1 = new Item(testTargetId1);
+        Item arrivedItem2 = new Item(testTargetId2);
+        Item arrivedItem3 = new Item(testTargetId3);
+        Item shippedItem1 = new Item(testTargetId1);
+        Item shippedItem2 = new Item(testTargetId2);
+        Item shippedItem3 = new Item(testTargetId3);
+        warehouse.arrive(arrivedItem1, 5);
+        warehouse.arrive(arrivedItem2, 5);
+        warehouse.arrive(arrivedItem3, 10);
         warehouseRepository.set(warehouse);
-
+        
         // ship request
         Date now = new Date();
         Date shippingTime = new Date(now.getTime() + 5 * 1000);
         Set<Long> expected = new HashSet<Long>();
 
         ShippingRequestMessageBean firstShipMessage = ShippingRequestMessageBuilder
-                .newRequest(shippingTime, item(id(1), amount(3)), item(id(2),
-                        amount(4)));
+                .newRequest(shippingTime, item(id(1), amount(3)), item(id(2),amount(4)));
         long firstShipped = shippingRequest(firstShipMessage);
         expected.add(firstShipped);
 
         ShippingRequestMessageBean secondShipMessage = ShippingRequestMessageBuilder
-                .newRequest(shippingTime, item(id(2), amount(1)), item(id(3),
-                        amount(9)));
+                .newRequest(shippingTime, item(id(2), amount(1)), item(id(3),amount(9)));
         long secondShipped = shippingRequest(secondShipMessage);
         expected.add(secondShipped);
 
@@ -264,18 +281,15 @@ public class WmsServiceTest {
         List<Long> shipped = ship(shipMessage);
 
         // verify
-        ShippingRequestRepository shippingRequestRepository = ShippingRequestRepository
-                .getInstance();
+        ShippingRequestRepository shippingRequestRepository = ShippingRequestRepository.getInstance();
 
         assertTrue(shipped.containsAll(expected));
 
-        assertEquals(ShippingRequestStatus.SHIPPED, shippingRequestRepository
-                .forId(firstShipped).status());
-        assertEquals(ShippingRequestStatus.SHIPPED, shippingRequestRepository
-                .forId(secondShipped).status());
-        assertEquals(Integer.valueOf(2), warehouse.items().get(Long.valueOf(1)));
-        assertEquals(Integer.valueOf(0), warehouse.items().get(Long.valueOf(2)));
-        assertEquals(Integer.valueOf(1), warehouse.items().get(Long.valueOf(3)));
+        assertEquals(ShippingRequestStatus.SHIPPED, shippingRequestRepository.forId(firstShipped).status());
+        assertEquals(ShippingRequestStatus.SHIPPED, shippingRequestRepository.forId(secondShipped).status());
+        assertEquals(Integer.valueOf(2), warehouse.items().get(shippedItem1));
+        assertEquals(Integer.valueOf(0), warehouse.items().get(shippedItem2));
+        assertEquals(Integer.valueOf(1), warehouse.items().get(shippedItem3));
     }
 
     /**
@@ -295,9 +309,18 @@ public class WmsServiceTest {
         WarehouseRepository warehouseRepository = WarehouseRepository
                 .getInstance();
         Warehouse warehouse = warehouseRepository.get();
-        warehouse.arrive(1, 5);
-        warehouse.arrive(2, 5);
-        warehouse.arrive(3, 10);
+        long testTargetId1 = 1L;
+        long testTargetId2 = 2L;
+        long testTargetId3 = 3L;
+        Item arrivedItem1 = new Item(testTargetId1);
+        Item arrivedItem2 = new Item(testTargetId2);
+        Item arrivedItem3 = new Item(testTargetId3);
+        Item shippedItem1 = new Item(testTargetId1);
+        Item shippedItem2 = new Item(testTargetId2);
+        Item shippedItem3 = new Item(testTargetId3);
+        warehouse.arrive(arrivedItem1, 5);
+        warehouse.arrive(arrivedItem2, 5);
+        warehouse.arrive(arrivedItem3, 10);
         warehouseRepository.set(warehouse);
 
         // ship request
@@ -305,14 +328,12 @@ public class WmsServiceTest {
         Date futureTime = new Date(now.getTime() + 1000 * 1000);
 
         ShippingRequestMessageBean firstShipMessage = ShippingRequestMessageBuilder
-                .newRequest(futureTime, item(id(1), amount(3)), item(id(2),
-                        amount(4)));
+                .newRequest(futureTime, item(id(1), amount(3)), item(id(2),amount(4)));
         long willBeShipped = shippingRequest(firstShipMessage);
 
         Date shippingTime = new Date(now.getTime() + 5 * 1000);
         ShippingRequestMessageBean secondShipMessage = ShippingRequestMessageBuilder
-                .newRequest(shippingTime, item(id(2), amount(1)), item(id(3),
-                        amount(9)));
+                .newRequest(shippingTime, item(id(2), amount(1)), item(id(3),amount(9)));
         long beingShipped = shippingRequest(secondShipMessage);
 
         // ship
@@ -330,9 +351,9 @@ public class WmsServiceTest {
                 shippingRequestRepository.forId(willBeShipped).status());
         assertEquals(ShippingRequestStatus.SHIPPED, shippingRequestRepository
                 .forId(beingShipped).status());
-        assertEquals(Integer.valueOf(5), warehouse.items().get(Long.valueOf(1)));
-        assertEquals(Integer.valueOf(4), warehouse.items().get(Long.valueOf(2)));
-        assertEquals(Integer.valueOf(1), warehouse.items().get(Long.valueOf(3)));
+        assertEquals(Integer.valueOf(5), warehouse.items().get(shippedItem1));
+        assertEquals(Integer.valueOf(4), warehouse.items().get(shippedItem2));
+        assertEquals(Integer.valueOf(1), warehouse.items().get(shippedItem3));
     }
 
     /**
@@ -387,7 +408,7 @@ public class WmsServiceTest {
      * 
      */
     private static ShippingRequestMessageBean createShippingRequestMessage(
-            Date time, long id, int amount) {
+            Date time, Item item, int amount) {
 
         // message bean
         ShippingRequestMessageBean messageBean = new ShippingRequestMessageBean();
@@ -395,7 +416,7 @@ public class WmsServiceTest {
 
         // items
         ShippingItemsMessageBean itemBean1 = new ShippingItemsMessageBean();
-        itemBean1.id = id;
+        itemBean1.id = item.id();
         itemBean1.amount = amount;
 
         List<ShippingItemsMessageBean> items = new ArrayList<ShippingItemsMessageBean>();

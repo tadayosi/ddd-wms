@@ -4,13 +4,15 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.googlecode.dddwms.domain.service.Item;
+
 public class ArrivalRequest {
 
     private final long _id;
 
     private final Date _time;
 
-    private Map<Long, Integer> amounts = new HashMap<Long, Integer>();
+    private Map<Item, Integer> items = new HashMap<Item, Integer>();
 
     private ArrivalRequestStatus _status;
 
@@ -28,21 +30,21 @@ public class ArrivalRequest {
         return _time;
     }
 
-    public int amountOf(Long id) {
-        return amounts.get(Long.valueOf(id)).intValue();
+    public int amountOf(Item item) {
+        return items.get(item).intValue();
     }
 
-    public void putAmount(Long id, int amount) {
-        amounts.put(Long.valueOf(id), Integer.valueOf(amount));
+    public void putAmount(Item item, int amount) {
+        items.put(item, Integer.valueOf(amount));
     }
 
     public ArrivalRequestStatus status() {
         return _status;
     }
 
-    public Map<Long, Integer> amounts() {
-        // diffencive copy
-        return new HashMap<Long, Integer>(amounts);
+    public Map<Item, Integer> amounts() {
+        // Defensive copy
+        return new HashMap<Item, Integer>(items);
     }
 
     public void arrived() {
